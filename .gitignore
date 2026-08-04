@@ -1,0 +1,17 @@
+# 依赖
+node_modules/
+
+# 构建产物
+dist/
+
+# Python 虚拟环境
+.venv/
+.venv_uzi/
+
+# 本地临时文件 / 遗留项目副本
+temp-project/
+current_xhs.png
+
+# 原始源图（网站未引用，仅本地存档；线上用的是 webp 压缩版）
+src/assets/images/design/
+src/assets/images/paint/

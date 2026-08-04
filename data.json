@@ -1,0 +1,230 @@
+{
+  "profile": {
+    "name": "杨枝甘鹿",
+    "slogan": "我的网站！",
+    "about": "这里是关于我的详细介绍。\n\n我可以自由编辑这段文字，它会实时同步到我的网站上。\n\n热爱编程，追求极简设计风格。",
+    "contact": {
+      "email": "24300130090@m.fudan.edu.cn",
+      "github": "https://github.com/Mango-pomelo-sago",
+      "githubName": "Mango-pomelo-sago",
+      "douyin": "https://v.douyin.com/GLi6kN8N7OQ/",
+      "douyinName": "波音747生物能大蟑螂",
+      "xiaohongshu": "https://www.xiaohongshu.com/user/profile/62c68c71000000000303f980",
+      "xiaohongshuName": "真是真菌"
+    }
+  },
+  "projects": [
+    {
+      "id": 1,
+      "title": "平面设计",
+      "desc": "海报、品牌视觉等平面设计作品。",
+      "image": "https://via.placeholder.com/400x300/FFD100/000000?text=Graphic+Design",
+      "link": "",
+      "detail": "design"
+    },
+    {
+      "id": 2,
+      "title": "新媒体运营",
+      "desc": "社交媒体内容策划与运营案例。",
+      "image": "https://via.placeholder.com/400x300/00935F/FFFFFF?text=Social+Media",
+      "link": "",
+      "detail": "xiaohongshu"
+    },
+    {
+      "id": 3,
+      "title": "UIUX设计",
+      "desc": "界面与交互设计作品。",
+      "image": "https://via.placeholder.com/400x300/000000/FFD100?text=UIUX+Design",
+      "link": "",
+      "hidden": true
+    },
+    {
+      "id": 4,
+      "title": "绘画",
+      "desc": "手绘与数字绘画作品。",
+      "image": "https://via.placeholder.com/400x300/FFD100/000000?text=Painting",
+      "link": "",
+      "detail": "paint"
+    },
+    {
+      "id": 5,
+      "title": "摄影",
+      "desc": "摄影作品集。",
+      "image": "https://via.placeholder.com/400x300/00935F/FFFFFF?text=Photography",
+      "link": "",
+      "detail": "photo"
+    }
+  ],
+  "xiaohongshu": {
+    "author": "复旦大学",
+    "posts": [
+      {
+        "id": 1,
+        "title": "NǐHǎo ，我是小红书本地人复旦大学",
+        "likes": 433,
+        "link": "https://www.xiaohongshu.com/discovery/item/67892ce80000000021003d24?source=webshare&xhsshare=pc_web&xsec_token=ABy0YsE4r58tjUqB7NY20FUDaLAMxHX6QyJOncJwhgRnw=&xsec_source=pc_share"
+      },
+      {
+        "id": 2,
+        "title": "🙀听说复旦人的期末季将近，怎么办？",
+        "likes": 1346,
+        "link": "https://www.xiaohongshu.com/discovery/item/6746aac5000000000601501d?source=webshare&xhsshare=pc_web&xsec_token=AB25ym7yYJdFjZMSqHl0Cq717hq8KaciId6F-8nFc7-jw=&xsec_source=pc_share"
+      },
+      {
+        "id": 3,
+        "title": "征集｜2025你在复旦收到的好消息！",
+        "likes": 150,
+        "link": "https://www.xiaohongshu.com/discovery/item/694291e9000000000d03c3a3?source=webshare&xhsshare=pc_web&xsec_token=AB0paKXAKzYsL9SpNyxdCuE2rcoG3hon5xmpO8u3lkIBg=&xsec_source=pc_share"
+      },
+      {
+        "id": 4,
+        "title": "当我换个方式打开复旦",
+        "likes": 837,
+        "link": "https://www.xiaohongshu.com/discovery/item/69dcb33d000000001a027f9f?source=webshare&xhsshare=pc_web&xsec_token=ABc2xu-RHg6pRP-cT0CvxqBpoZr9ksnEWsy6H47ImDtBw=&xsec_source=pc_share"
+      },
+      {
+        "id": 5,
+        "title": "注意看‼️99%人都想不到…",
+        "likes": 611,
+        "link": "https://www.xiaohongshu.com/discovery/item/6a06e0340000000035039d60?source=webshare&xhsshare=pc_web&xsec_token=ABGat5icAqlMHcXkDR8I2VWwTvvKX5mnvIB_Og-1xai9g=&xsec_source=pc_share"
+      },
+      {
+        "id": 6,
+        "title": "青青草原的小羊也有在复旦好好长大！",
+        "likes": 962,
+        "link": "https://www.xiaohongshu.com/discovery/item/68d28b1f000000001301e5e4?source=webshare&xhsshare=pc_web&xsec_token=ABGliBZ2A0sRxKuMz8QzNYKd2tRkYtC7aMl3YVMzjKhLk=&xsec_source=pc_share"
+      },
+      {
+        "id": 7,
+        "title": "这条路，就只管大胆往前走！✨",
+        "likes": 568,
+        "link": "https://www.xiaohongshu.com/discovery/item/693fb091000000001b0232ea?source=webshare&xhsshare=pc_web&xsec_token=AB9k9_ahkZRNdSshO8EI9VbAX6cbY7TLHi2sLDeplSg3Y=&xsec_source=pc_share"
+      },
+      {
+        "id": 8,
+        "title": "💌请查收复旦的一千零一个故事",
+        "likes": 85,
+        "link": "https://www.xiaohongshu.com/discovery/item/682afdd6000000000c03bf35?source=webshare&xhsshare=pc_web&xsec_token=AByviIc9TNpmUG-eFCTfE9NjRh2g1CpoHLhLyChPl_E1Q=&xsec_source=pc_share"
+      },
+      {
+        "id": 9,
+        "title": "高考加油！复旦愿你落笔生花，圆梦今夏",
+        "likes": 495,
+        "link": "https://www.xiaohongshu.com/discovery/item/6a24c5f1000000001702805f?source=webshare&xhsshare=pc_web&xsec_token=AB0kU6mpovtNWSV6PPuqzhaToz1cV7lMgguJl9rPntiiA=&xsec_source=pc_share"
+      },
+      {
+        "id": 10,
+        "title": "所有复旦人，动手❗️",
+        "likes": 863,
+        "link": "https://www.xiaohongshu.com/discovery/item/69337b3b000000001b0309b9?source=webshare&xhsshare=pc_web&xsec_token=ABfxLbtM_zPY50nn_H9FuPcynD3SRzouLCPoYUN1UPN9M=&xsec_source=pc_share"
+      },
+      {
+        "id": 12,
+        "title": "🍂风起时 整个复旦都在为你写诗✨",
+        "link": "https://www.xiaohongshu.com/discovery/item/6909da59000000000302c3c9?source=webshare&xhsshare=pc_web&xsec_token=AB02pLSF6PbZWM1O371FB7Unl1c4Y2PEG-KqO5awcI0dM=&xsec_source=pc_share"
+      },
+      {
+        "id": 13,
+        "title": "期中加油！把复旦地标的祝福揣进书包💯",
+        "link": "https://www.xiaohongshu.com/discovery/item/68fca6cf0000000003020f26?source=webshare&xhsshare=pc_web&xsec_token=ABwsJGQxpHMDYR2wkCe2IeA7EJGibfzCw3teuTEWu3Lbo=&xsec_source=pc_share"
+      },
+      {
+        "id": 14,
+        "title": "所有刷到这个视频的人，“一战成功”❗️",
+        "link": "https://www.xiaohongshu.com/discovery/item/69e5f92d000000001a0257f7?source=webshare&xhsshare=pc_web&xsec_token=ABTkNeZBZD__bjMkB6h7WLhqBWhl5i8l_hXAsTqeyCDyg=&xsec_source=pc_share"
+      },
+      {
+        "id": 15,
+        "title": "人，跟着猫来体验复旦大学的一天吧👉🏻",
+        "link": "https://www.xiaohongshu.com/discovery/item/6914165d00000000030122f6?source=webshare&xhsshare=pc_web&xsec_token=ABFeOX6v2c-V03yPyLsP4u3H3HwGPjIXfMfMfnLpXgBDs=&xsec_source=pc_share"
+      },
+      {
+        "id": 16,
+        "title": "无水军❗从夯到拉锐评复旦的猫（人类版😼",
+        "link": "https://www.xiaohongshu.com/discovery/item/693be7a1000000001e00377c?source=webshare&xhsshare=pc_web&xsec_token=ABVUMUM-HbZs62L6a1tuLvsXTlqmGoi6UggksS5LFibPM=&xsec_source=pc_share"
+      }
+    ]
+  },
+  "gongzhonghao": {
+    "title": "公众号",
+    "sub": "微信公众号推文，点击标题查看原文",
+    "articles": [
+      {
+        "title": "零号推送｜玩家报名｜PolisSH城市定向第六季，黑白之界，弈局相融。",
+        "url": "https://mp.weixin.qq.com/s/gpZpssOwVYka4SbYRVGaIQ"
+      },
+      {
+        "title": "玩家报名｜PolisSH城市定向第五季，重踏故土，循迹明光。",
+        "url": "https://mp.weixin.qq.com/s/mziMKJ2DzUK_1lD47KFdKQ"
+      },
+      {
+        "title": "玩家报名 | PolisSH lite轻量级城市定向，#Answer From 2010",
+        "url": "https://mp.weixin.qq.com/s/Y7IyJgQeimQrcFZIw2P6Aw"
+      },
+      {
+        "title": "“旦”愿你来｜复旦大学线下招生宣讲会预告",
+        "url": "https://mp.weixin.qq.com/s/sBWP-wk-Y4CTTH3tJh-hhw"
+      },
+      {
+        "title": "“坐上”轮椅，这群复旦人重新发现上海",
+        "url": "https://mp.weixin.qq.com/s/EjNOx28EotLLBkQG0wH5nA"
+      },
+      {
+        "title": "一朵卿云拂过百廿长空！亲爱的复旦，祝你120岁生日快乐！",
+        "url": "https://mp.weixin.qq.com/s/BUDcPA6dHAUQ_gHUZ-OXjg"
+      },
+      {
+        "title": "复旦“小叶子”，已就位！全名单出炉",
+        "url": "https://mp.weixin.qq.com/s/U4qLGCAkRFMOK_aH4VFvKg"
+      },
+      {
+        "title": "今天，复旦人用热爱告白！",
+        "url": "https://mp.weixin.qq.com/s/5VvZuz6O37aRq2r1SyWdJw"
+      },
+      {
+        "title": "今天，点赞她们！表彰全名单来了",
+        "url": "https://mp.weixin.qq.com/s/B8YZZxpEHSfxAxZgD_7uqQ"
+      },
+      {
+        "title": "50000000步！这群复旦人，有点爱“瞎逛”",
+        "url": "https://mp.weixin.qq.com/s/lzNKB_R3y7H3D-f0HZFOwg"
+      },
+      {
+        "title": "热热热，夏天这样吃才清凉！是复旦“食力”没错了",
+        "url": "https://mp.weixin.qq.com/s/A0LcDmgI4dxIZLvDuAecdA"
+      },
+      {
+        "title": "在复旦，“粽”享美味~",
+        "url": "https://mp.weixin.qq.com/s/3tfWoifu4Txs29j_0EqvPQ"
+      },
+      {
+        "title": "寻人！亮出120个选复旦的理由，你就是大片主角",
+        "url": "https://mp.weixin.qq.com/s/kj03TwDstDxHdQimB0jr5A"
+      },
+      {
+        "title": "这一刻，笔尖有光！复旦等你，顶峰相见",
+        "url": "https://mp.weixin.qq.com/s/hejGQNvQ9YorSsjqvlNllg"
+      },
+      {
+        "title": "全球复旦人的“集体生日”！百廿校庆倒计时100天",
+        "url": "https://mp.weixin.qq.com/s/iPS_IoXrNltVEwJcGFeV3Q"
+      },
+      {
+        "title": "这个秋季学期，他们把课堂搬到了全世界",
+        "url": "https://mp.weixin.qq.com/s/UvfQ7HkUa9p9zb39Way_mw"
+      },
+      {
+        "title": "暑假，复旦人在全球上课！",
+        "url": "https://mp.weixin.qq.com/s/T8RGlfQU1ieTy3Ors8UNQ"
+      },
+      {
+        "title": "正月初三，福气翻番！红包封面限时返场，笃志前行一马当先",
+        "url": "https://mp.weixin.qq.com/s/GTfB0XRfuh4wWV_q8X9J9w"
+      },
+      {
+        "title": "好消息！好消息！",
+        "url": "https://mp.weixin.qq.com/s/Xj3wVqYSJ1nY7tc2lh0zqg"
+      }
+    ]
+  }
+}

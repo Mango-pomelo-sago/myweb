@@ -1,0 +1,44 @@
+:root {
+  --nyc-yellow: #FFD100;
+  --nyc-green: #00935F;
+  --nyc-black: #000000;
+  --nyc-white: #FFFFFF;
+  --font-main: 'Inter', '思源黑体', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--nyc-white);
+  color: var(--nyc-black);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden; /* 防止线路延伸出屏幕时出现滚动条 */
+}
+
+h1, h2, h3, strong {
+  font-weight: 700;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* 极简滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--nyc-black);
+}
+
+/* 自定义光标：隐藏默认光标 */
+a, button, .clickable {
+  cursor: none !important;
+}
