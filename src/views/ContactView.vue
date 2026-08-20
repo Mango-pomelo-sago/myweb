@@ -386,7 +386,68 @@ onUnmounted(() => {
   font-size: 18px;
   font-weight: 600;
   color: var(--nyc-black);
+  position: relative;
+  display: inline-block;
   transition: color 0.2s ease;
+  /* 参考 Codrops LineHoverStyles 效果 08 (link--kale) */
+}
+
+/* 粗条：悬停时从底部向上展开、划过后缩回 */
+.value::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 100%;
+  width: 100%;
+  height: 10px;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.value:hover::before {
+  opacity: 1;
+  animation: lineUp 0.3s ease forwards;
+}
+
+@keyframes lineUp {
+  0% {
+    transform-origin: 50% 100%;
+    transform: scale3d(1, 0.045, 1);
+  }
+
+  50% {
+    transform-origin: 50% 100%;
+    transform: scale3d(1, 1, 1);
+  }
+
+  51% {
+    transform-origin: 50% 0%;
+    transform: scale3d(1, 1, 1);
+  }
+
+  100% {
+    transform-origin: 50% 0%;
+    transform: scale3d(1, 0.045, 1);
+  }
+}
+
+/* 细线：悬停后延迟 0.3s 淡入 */
+.value::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 100%;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.value:hover::after {
+  opacity: 1;
+  transition-delay: 0.3s;
 }
 
 .value:hover {
@@ -419,13 +480,28 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
+  .contact-view {
+    margin-left: 0;           /* 复位桌面端缩进 */
+  }
+
   .contact-layout {
     flex-direction: column;
+    gap: 30px;
   }
-  
+
   .contact-image {
     width: 100%;
     height: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 32px;
+  }
+
+  .contact-image {
+    height: 300px;
   }
 }
 

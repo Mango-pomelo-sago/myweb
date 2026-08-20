@@ -114,4 +114,12 @@ const onProgress = () => {}
   transform: translateX(-50%);
   z-index: 10;
 }
+
+@media (max-width: 768px) {
+  .watermark-title {
+    font-size: calc(2.5vw + 2.5rem);
+    top: 8rem;
+    left: 6vw;
+  }
+}
 </style>

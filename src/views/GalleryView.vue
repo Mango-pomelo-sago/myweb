@@ -174,4 +174,9 @@ onUnmounted(() => {
   border-radius: 4px;
 }
 
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 32px;
+  }
+}
 </style>

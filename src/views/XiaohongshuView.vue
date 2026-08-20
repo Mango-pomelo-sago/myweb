@@ -581,4 +581,78 @@ onUnmounted(() => {
 .heart {
   color: #999;
 }
+
+/* =========================================
+   响应式适配
+   ========================================= */
+@media (max-width: 768px) {
+  /* 双栏改单栏：目录导航上移为吸顶 pill 条 */
+  .content-layout {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .sub-nav {
+    position: sticky;
+    top: 96px;                 /* 挂在 88px 固定导航栏下方 */
+    width: 100%;
+    flex-shrink: 0;
+    flex-direction: row;
+    gap: 10px;
+    padding: 4px 0 10px;
+    overflow-x: auto;          /* 5 项在窄屏下可横滑 */
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    background: var(--nyc-white);
+    z-index: 5;
+  }
+
+  .sub-nav-title {
+    display: none;             /* 目录标题移动端隐藏 */
+  }
+
+  .sub-nav-item {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border: 1px solid var(--nyc-line);
+    border-radius: 999px;
+  }
+
+  .sub-nav-item:hover {
+    background-color: transparent;
+    border-left-color: var(--nyc-line);
+  }
+
+  .sub-nav-item.active {
+    border-color: var(--nyc-green);
+  }
+
+  .section {
+    scroll-margin-top: 150px;  /* 给吸顶 pill 条留位 */
+  }
+
+  /* 固定宽度图片改为自适应 */
+  .personal-img {
+    width: 100%;
+    max-width: 480px;
+    height: auto;
+  }
+
+  /* 卡片网格收紧为小尺寸自适应 */
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 32px;
+  }
+
+  /* 手机上固定 2 列 */
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 </style>

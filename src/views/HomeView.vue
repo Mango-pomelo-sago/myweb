@@ -253,11 +253,15 @@ const initScrollTextAnimation = () => {
   window.addEventListener('resize', handleGsapResize)
 }
 
-// 处理 GSAP 窗口大小变化
+// 处理 GSAP 窗口大小变化（节流 150ms，避免手机滚动条/旋转时反复重算卡顿）
+let resizeTimer = null
 const handleGsapResize = () => {
-  ScrollTrigger.refresh(true)
-  initFlips()
-  initScramble()
+  clearTimeout(resizeTimer)
+  resizeTimer = setTimeout(() => {
+    ScrollTrigger.refresh(true)
+    initFlips()
+    initScramble()
+  }, 150)
 }
 
 onMounted(() => {
@@ -414,5 +418,33 @@ onUnmounted(() => {
   line-height: 1.2;
   margin: 0;
   white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .scroll-text-content .el {
+    white-space: normal;
+  }
+  .scroll-text-content .pos-2 {
+    margin-left: 8vw;
+  }
+  .scroll-text-content .pos-3 {
+    margin-left: 18vw;
+  }
+  .scroll-text-content .pos-4 {
+    margin-left: auto;
+  }
+  .scroll-text-content .pos-9 {
+    margin-left: 8vw;
+    margin-top: 80px;
+  }
+  .scroll-text-content .pos-10 {
+    margin-left: 18vw;
+    margin-top: 12vh;
+  }
+  .scroll-text-content .pos-5,
+  .scroll-text-content .pos-6,
+  .scroll-text-content .pos-7 {
+    margin-top: 60px;
+  }
 }
 </style>

@@ -39,6 +39,12 @@ const route = useRoute()
   background-color: transparent;
 }
 
+@media (max-width: 768px) {
+  .content-area {
+    padding: 100px 20px 40px;
+  }
+}
+
 /* 页面切换动效 */
 .fade-enter-active,
 .fade-leave-active {

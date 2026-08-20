@@ -509,4 +509,17 @@ onBeforeUnmount(() => {
   transform: scaleX(0);
   background: var(--nyc-black);
 }
+
+@media (max-width: 768px) {
+  .slideshow-list__el {
+    min-width: 18rem;
+    margin-left: 10vw;
+  }
+}
+
+@media (max-width: 480px) {
+  .slideshow-list__el {
+    min-width: 14rem;
+  }
+}
 </style>

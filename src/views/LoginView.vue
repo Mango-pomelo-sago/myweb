@@ -56,6 +56,7 @@ const handleLogin = () => {
 
 .login-box {
   width: 400px;
+  max-width: calc(100% - 40px);
   padding: 60px 40px;
   border: 4px solid var(--nyc-black);
   background-color: var(--nyc-white);
