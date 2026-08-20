@@ -3,7 +3,7 @@
     <ContourBackground />
     <BackToPortfolio v-if="route.meta.showBackToPortfolio" />
     <CustomCursor />
-    <Sidebar />
+    <TopNav />
     <main class="content-area">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
@@ -16,7 +16,7 @@
 
 <script setup>
 import { useRoute } from 'vue-router'
-import Sidebar from '../components/Sidebar.vue'
+import TopNav from '../components/TopNav.vue'
 import CustomCursor from '../components/CustomCursor.vue'
 import ContourBackground from '../components/ContourBackground.vue'
 import BackToPortfolio from '../components/BackToPortfolio.vue'
@@ -32,9 +32,8 @@ const route = useRoute()
 }
 
 .content-area {
-  margin-left: 200px;
   flex: 1;
-  padding: 60px 80px;
+  padding: 100px 80px 60px;   /* 顶部留出悬浮导航带 */
   position: relative;
   z-index: 1;
   background-color: transparent;

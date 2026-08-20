@@ -395,11 +395,10 @@ onUnmounted(() => {
 }
 
 /* 固定标题样式
-   侧边栏固定 200px，分割线右侧区域的中心 = (200px + 100vw) / 2 = 50vw + 100px，
-   因此用 left: calc(50% + 100px) 让标题中心落在右侧内容区中心，而非整页中心 */
+   让"杨枝甘鹿"标题居中显示在页面中央 */
 .fixed-title {
   position: fixed;
-  left: calc(50% + 100px);
+  left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: 200;

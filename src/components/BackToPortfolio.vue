@@ -19,8 +19,8 @@
 <style scoped>
 .back-to-portfolio {
   position: fixed;
-  top: 24px;
-  left: 216px;
+  top: 20px;
+  right: 28px;
   z-index: 300;
   width: 48px;
   height: 48px;

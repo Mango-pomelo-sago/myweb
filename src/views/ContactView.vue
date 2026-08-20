@@ -1,6 +1,11 @@
 <template>
   <div class="contact-view">
-    <h1 class="page-title">联系我</h1>
+    <div class="title-area">
+      <h1 class="page-title">联系我</h1>
+      <span class="subtitle">
+        <LetterPlay text="CONTACT" accent="var(--nyc-green)" />
+      </span>
+    </div>
     <div class="divider"></div>
     
     <div class="contact-layout">
@@ -49,6 +54,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import data from '../../data.json'
 import landscapeImg from '@/assets/images/landscape.png'
+import LetterPlay from '../components/LetterPlay.vue'
 
 const canvasRef = ref(null)
 
@@ -319,6 +325,27 @@ onUnmounted(() => {
 <style scoped>
 .contact-view {
   max-width: 1200px;
+  margin-left: 80px; /* 与导航栏"首页"菜单项左对齐 */
+}
+
+/* 标题区：与 CLAUDE.md 垂直居中方案一致 */
+.title-area {
+  flex-shrink: 0;
+  margin-top: auto;
+  margin-bottom: 20px;
+}
+
+.subtitle {
+  display: block;
+  margin-top: 4px;
+  margin-bottom: 12px;
+}
+
+.page-title {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--nyc-black);
+  margin-bottom: 0;
 }
 
 .contact-layout {
@@ -326,13 +353,6 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   gap: 60px;
-}
-
-.page-title {
-  font-size: 48px;
-  font-weight: 700;
-  color: var(--nyc-black);
-  margin-bottom: 20px;
 }
 
 .divider {

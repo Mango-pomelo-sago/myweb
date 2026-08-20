@@ -15,3 +15,6 @@ current_xhs.png
 # 原始源图（网站未引用，仅本地存档；线上用的是 webp 压缩版）
 src/assets/images/design/
 src/assets/images/paint/
+
+# Chrome 调试缓存
+.chrome-dump/

@@ -1,8 +1,12 @@
 <template>
-  <router-view />
+  <div id="app-root">
+    <LoadingAnimation />
+    <router-view />
+  </div>
 </template>
 
 <script setup>
+import LoadingAnimation from './components/LoadingAnimation.vue'
 </script>
 
 <style>

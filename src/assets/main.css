@@ -3,7 +3,32 @@
   --nyc-green: #00935F;
   --nyc-black: #000000;
   --nyc-white: #FFFFFF;
+  --nyc-line: #D4D4D4;   /* 导航底部分隔线 */
   --font-main: 'Inter', '思源黑体', sans-serif;
+  --font-serif: Georgia, 'Times New Roman', 'Songti SC', 'SimSun', 'Noto Serif SC', serif;
+}
+
+/* 衬线标题排版(参考 gooey-hover-codrops 的 .title 体系) */
+.title {
+  font-family: var(--font-serif);
+  text-transform: uppercase;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+.title--large {
+  font-size: clamp(3rem, 6vw, 5rem);
+  line-height: 0.975;
+}
+.title--medium {
+  font-size: calc(1.1rem + 1.1vw);
+  line-height: 1.05;
+}
+.title__line {
+  display: block;
+}
+.title__offset {
+  display: block;
+  margin-left: 15%;
 }
 
 * {
@@ -30,12 +55,13 @@ a {
   color: inherit;
 }
 
-/* 极简滚动条 */
+/* 极简滚动条（隐藏 Webkit 滚动条） */
 ::-webkit-scrollbar {
-  width: 8px;
+  display: none;
 }
-::-webkit-scrollbar-thumb {
-  background: var(--nyc-black);
+* {
+  scrollbar-width: none;    /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
 }
 
 /* 自定义光标：隐藏默认光标 */
