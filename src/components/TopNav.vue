@@ -54,6 +54,7 @@ const navItems = ref([
   { path: '/', name: '首页', label: 'Home' },
   // { path: '/about', name: '关于我', label: 'About' }, // 暂隐藏
   { path: '/portfolio', name: '作品集', label: 'Portfolio' },
+  { path: '/work', name: '我的工作', label: 'Work' },
   { path: '/contact', name: '联系我', label: 'Contact' }
 ])
 

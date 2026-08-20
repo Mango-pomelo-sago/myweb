@@ -50,6 +50,11 @@ const routes = [
         meta: { showBackToPortfolio: true }
       },
       {
+        path: 'work',
+        name: 'Work',
+        component: () => import('../views/WorkExperienceView.vue')
+      },
+      {
         path: 'contact',
         name: 'Contact',
         component: () => import('../views/ContactView.vue')

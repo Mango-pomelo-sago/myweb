@@ -19,7 +19,16 @@
               <img class="tile__img" :src="slide.base" :data-hover="slide.hover" :alt="slide.title" />
             </figure>
             <div class="tile__content">
-              <h2 class="tile__title title title--medium">{{ slide.title }}<span class="title__offset">{{ slide.en }}</span></h2>
+              <div class="tile__head">
+                <MathCurveIcon
+                  v-if="slide.curveConfig"
+                  :config="slide.curveConfig"
+                  :size="192"
+                  color="#00935F"
+                  class="tile__icon"
+                />
+                <h2 class="tile__title title title--medium">{{ slide.title }}<span class="title__offset">{{ slide.en }}</span></h2>
+              </div>
               <div class="tile__cta"><span class="btn-inline">See more</span></div>
             </div>
           </a>
@@ -37,6 +46,7 @@ import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import gsap from 'gsap'
 import * as THREE from 'three'
 import { vertexShader, fragmentShader } from '../utils/gooeyShaders.js'
+import MathCurveIcon from './MathCurveIcon.vue'
 
 const props = defineProps({
   slides: { type: Array, default: () => [] },
@@ -442,10 +452,24 @@ onBeforeUnmount(() => {
 .tile__content {
   position: absolute;
   left: 0;
-  bottom: 3.6rem;
+  bottom: 1.5rem;
   width: 100%;
   z-index: 1;
   font-size: 1.4rem;
+}
+/* 文字行：图标在左，标题在右，垂直居中对齐 */
+.tile__head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: 2%;
+}
+/* 数学曲线图标：透明底，直接叠在卡片图片上 */
+.tile__icon {
+  position: relative;
+  flex-shrink: 0;
+  width: 192px;
+  height: 192px;
 }
 /* 标题溢出卡片左缘: 参考 demo 的 tile__title margin-left: -10% */
 .tile__title {

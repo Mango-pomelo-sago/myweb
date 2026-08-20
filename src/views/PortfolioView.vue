@@ -60,6 +60,30 @@ const EN_TITLES = {
   photo: 'Photography',
 }
 
+// 每栏对应的数学曲线配置（来自 math-curve-loaders），用于在卡片文字左侧显示动画图标
+const CURVE_CONFIGS = {
+  xiaohongshu: {
+    name: 'Rose Curve',
+    roseA: 9.2, roseABoost: 0.6, roseBreathBase: 0.72, roseBreathBoost: 0.28, roseK: 5, roseScale: 3.25,
+    rotate: true, particleCount: 78, trailSpan: 0.32, durationMs: 5400, rotationDurationMs: 28000, pulseDurationMs: 4600, strokeWidth: 4.5,
+  },
+  design: {
+    name: 'Rose Two',
+    roseA: 9.2, roseABoost: 0.6, roseBreathBase: 0.72, roseBreathBoost: 0.28, roseK: 2, roseScale: 3.25,
+    rotate: true, particleCount: 74, trailSpan: 0.3, durationMs: 5200, rotationDurationMs: 28000, pulseDurationMs: 4300, strokeWidth: 4.6,
+  },
+  paint: {
+    name: 'Thinking Five',
+    baseRadius: 7, detailAmplitude: 3, petalCount: 5, curveScale: 3.9,
+    rotate: true, particleCount: 62, trailSpan: 0.38, durationMs: 4600, rotationDurationMs: 28000, pulseDurationMs: 4200, strokeWidth: 5.5,
+  },
+  photo: {
+    name: 'Rose Four',
+    roseA: 9.2, roseABoost: 0.6, roseBreathBase: 0.72, roseBreathBoost: 0.28, roseK: 4, roseScale: 3.25,
+    rotate: true, particleCount: 78, trailSpan: 0.32, durationMs: 5400, rotationDurationMs: 28000, pulseDurationMs: 4500, strokeWidth: 4.6,
+  },
+}
+
 // 构造 slides 数据传给 GooeySlideshow
 const slides = computed(() =>
   projects.value.map((p) => ({
@@ -70,6 +94,7 @@ const slides = computed(() =>
     base: covers[p.detail] || '',
     hover: hoverCovers[p.detail] || covers[p.detail] || '',
     detail: p.detail,
+    curveConfig: CURVE_CONFIGS[p.detail] || null,
   }))
 )
 
