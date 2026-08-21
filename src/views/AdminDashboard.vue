@@ -26,6 +26,26 @@
         <button class="btn btn-sm" @click="saveToken">保存 Token</button>
       </div>
       <p class="hint">Token 需要 <code>repo</code> 权限，仅保存在浏览器 localStorage 中</p>
+      <p v-if="tokenValid === true" class="token-status token-ok">✓ Token 有效</p>
+      <p v-if="tokenValid === false" class="token-status token-invalid">✗ Token 无效或已过期，请重新配置</p>
+    </section>
+
+    <!-- 安全设置：修改密码 -->
+    <section class="section password-section">
+      <h2 class="section-title">安全设置</h2>
+      <div class="form-row">
+        <label>当前密码</label>
+        <input type="password" v-model="currentPassword" class="input" placeholder="输入当前密码" />
+      </div>
+      <div class="form-row">
+        <label>新密码</label>
+        <input type="password" v-model="newPassword" class="input" placeholder="输入新密码（留空不修改）" />
+      </div>
+      <button class="btn btn-sm" @click="changePassword" :disabled="changingPassword">
+        {{ changingPassword ? '修改中…' : '修改密码' }}
+      </button>
+      <p v-if="passwordMsg" class="password-msg" :class="{ 'password-ok': passwordOk, 'password-err': !passwordOk }">{{ passwordMsg }}</p>
+      <p class="hint">密码保存在 data.json 的 <code>adminPassword</code> 字段中，修改后需保存到 GitHub 才会生效</p>
     </section>
 
     <!-- 选项卡导航 -->
@@ -575,7 +595,7 @@
 import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { siteData, loadSiteData } from '../utils/dataLoader'
-import { saveData, uploadImage, listImages, GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH } from '../utils/githubApi'
+import { saveData, uploadImage, listImages, validateToken, GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH } from '../utils/githubApi'
 
 const router = useRouter()
 
@@ -595,7 +615,8 @@ const editData = reactive({
   xiaohongshu: { posts: [] },
   gongzhonghao: { articles: [] },
   personalXiaohongshu: {},
-  personalDouyin: {}
+  personalDouyin: {},
+  adminPassword: ''
 })
 
 // 加载数据到编辑区
@@ -612,6 +633,7 @@ function loadDataIntoEdit() {
   editData.gongzhonghao = JSON.parse(JSON.stringify(src.gongzhonghao || { title: '', sub: '', articles: [] }))
   editData.personalXiaohongshu = JSON.parse(JSON.stringify(src.personalXiaohongshu || { author: '', subtitle: '', imageUrl: '', link: '' }))
   editData.personalDouyin = JSON.parse(JSON.stringify(src.personalDouyin || { author: '', subtitle: '', imageUrl: '', link: '' }))
+  editData.adminPassword = (src.adminPassword || 'admin123')
 }
 
 // ---------- 草稿：自动保存 + 恢复 ----------
@@ -639,7 +661,8 @@ function serializeEditData() {
     xiaohongshu: JSON.parse(JSON.stringify(editData.xiaohongshu)),
     gongzhonghao: JSON.parse(JSON.stringify(editData.gongzhonghao)),
     personalXiaohongshu: JSON.parse(JSON.stringify(editData.personalXiaohongshu || {})),
-    personalDouyin: JSON.parse(JSON.stringify(editData.personalDouyin || {}))
+    personalDouyin: JSON.parse(JSON.stringify(editData.personalDouyin || {})),
+    adminPassword: editData.adminPassword || 'admin123'
   }
 }
 
@@ -777,6 +800,10 @@ watch(
   () => JSON.stringify(editData.personalXiaohongshu) + JSON.stringify(editData.personalDouyin),
   () => markDirty('personal')
 )
+watch(
+  () => editData.adminPassword,
+  () => markDirty('personal')
+)
 
 // 选项卡
 const tabs = [
@@ -797,10 +824,56 @@ const activeTab = ref('profile')
 const saving = ref(false)
 const saved = ref(false)
 const githubToken = ref(localStorage.getItem('github_token') || '')
+const tokenValid = ref(null) // null=未检测, true=有效, false=无效
+
+// Token 有效性检测
+async function checkToken() {
+  tokenValid.value = null
+  const token = localStorage.getItem('github_token')
+  if (!token) {
+    tokenValid.value = false
+    return
+  }
+  try {
+    const valid = await validateToken()
+    tokenValid.value = valid
+  } catch {
+    tokenValid.value = false
+  }
+}
 
 function saveToken() {
   localStorage.setItem('github_token', githubToken.value)
   alert('Token 已保存到浏览器')
+  checkToken()
+}
+
+// 密码修改
+const currentPassword = ref('')
+const newPassword = ref('')
+const changingPassword = ref(false)
+const passwordMsg = ref('')
+const passwordOk = ref(false)
+
+async function changePassword() {
+  if (!newPassword.value) {
+    passwordMsg.value = '请输入新密码'
+    passwordOk.value = false
+    return
+  }
+  // 验证当前密码是否与 data.json 中的一致
+  const currentAdminPassword = (siteData.value && siteData.value.adminPassword) || 'admin123'
+  if (currentPassword.value !== currentAdminPassword) {
+    passwordMsg.value = '当前密码错误'
+    passwordOk.value = false
+    return
+  }
+  // 同步修改 editData 中的 adminPassword，保存时一并写入 data.json
+  editData.adminPassword = newPassword.value
+  passwordMsg.value = '密码已修改，点击「保存到 GitHub」后生效'
+  passwordOk.value = true
+  currentPassword.value = ''
+  newPassword.value = ''
 }
 
 // 保存前校验必填字段，返回第一个错误信息（null = 通过）
@@ -853,7 +926,8 @@ async function handleSave() {
       xiaohongshu: editData.xiaohongshu,
       gongzhonghao: editData.gongzhonghao,
       personalXiaohongshu: editData.personalXiaohongshu,
-      personalDouyin: editData.personalDouyin
+      personalDouyin: editData.personalDouyin,
+      adminPassword: editData.adminPassword || 'admin123'
     }
     // 保存时处理 scrambleDuration 为 null 的字段
     // 递归处理 home 中的 null scrambleDuration
@@ -1068,6 +1142,8 @@ watch(
 // 上传图片成功后也触发一次草稿保存（图片 URL 复制场景不影响）
 onMounted(async () => {
   if (await loadSiteData()) loadDataIntoEdit()
+  // —— Token 有效性检测 ——
+  checkToken()
   // —— 草稿恢复逻辑：有草稿则提示用户，选择恢复则覆盖当前编辑数据 ——
   const draft = readDraft()
   if (draft) {
@@ -1076,7 +1152,7 @@ onMounted(async () => {
     )
     if (ok) {
       if (editData.profile.contact) {
-        ;['profile', 'about', 'nav', 'home', 'work', 'projects', 'xiaohongshu', 'gongzhonghao', 'personalXiaohongshu', 'personalDouyin'].forEach(k => {
+        ;['profile', 'about', 'nav', 'home', 'work', 'projects', 'xiaohongshu', 'gongzhonghao', 'personalXiaohongshu', 'personalDouyin', 'adminPassword'].forEach(k => {
           if (draft[k] !== undefined) editData[k] = JSON.parse(JSON.stringify(draft[k]))
         })
       }
@@ -1301,6 +1377,33 @@ select.input {
   font-size: 13px;
   color: #999;
   margin: 4px 0 16px;
+}
+/* Token 状态 */
+.token-status {
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 8px;
+}
+.token-ok {
+  color: #27ae60;
+}
+.token-invalid {
+  color: #e74c3c;
+}
+/* 密码修改 */
+.password-section {
+  margin-bottom: 20px;
+}
+.password-msg {
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 8px;
+}
+.password-ok {
+  color: #27ae60;
+}
+.password-err {
+  color: #e74c3c;
 }
 code {
   font-size: 12px;

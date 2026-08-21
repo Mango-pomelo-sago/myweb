@@ -44,6 +44,7 @@ const SCHEMA = {
   about: 'object',
   personalXiaohongshu: 'object',
   personalDouyin: 'object',
+  adminPassword: 'string',
 }
 
 function isUsableData(data) {

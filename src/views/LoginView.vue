@@ -3,23 +3,23 @@
     <div class="login-box">
       <h1 class="title">后台管理</h1>
       <div class="divider"></div>
-      
+
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
           <label for="password">密码</label>
-          <input 
-            type="password" 
+          <input
+            type="password"
             id="password"
             v-model="password"
             placeholder="输入管理员密码"
             required
           />
         </div>
-        
-        <button type="submit" class="login-btn">
-          登录
+
+        <button type="submit" class="login-btn" :disabled="checking">
+          {{ checking ? '验证中…' : '登录' }}
         </button>
-        
+
         <p v-if="error" class="error-msg">{{ error }}</p>
       </form>
     </div>
@@ -27,20 +27,49 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { siteData } from '../utils/dataLoader'
 
 const router = useRouter()
 const password = ref('')
 const error = ref('')
+const checking = ref(false)
 
-const handleLogin = () => {
-  // 简单密码验证（实际部署时建议加密）
-  if (password.value === 'admin123') {
-    localStorage.setItem('isAdmin', 'true')
-    router.push('/admin/dashboard')
-  } else {
-    error.value = '密码错误'
+// 从 data.json 获取当前密码（默认为 admin123）
+function getAdminPassword() {
+  return (siteData.value && siteData.value.adminPassword) || 'admin123'
+}
+
+const handleLogin = async () => {
+  checking.value = true
+  error.value = ''
+  try {
+    // 先尝试加载远程数据，确保获取最新密码
+    const { loadSiteData } = await import('../utils/dataLoader')
+    await loadSiteData(true)
+
+    const adminPassword = getAdminPassword()
+    if (password.value === adminPassword) {
+      // 登录成功：设置登录标记 + 过期时间（24小时）
+      localStorage.setItem('isAdmin', 'true')
+      localStorage.setItem('admin_expires', String(Date.now() + 24 * 60 * 60 * 1000))
+      router.push('/admin/dashboard')
+    } else {
+      error.value = '密码错误'
+    }
+  } catch (e) {
+    // 加载失败时用本地数据
+    const adminPassword = getAdminPassword()
+    if (password.value === adminPassword) {
+      localStorage.setItem('isAdmin', 'true')
+      localStorage.setItem('admin_expires', String(Date.now() + 24 * 60 * 60 * 1000))
+      router.push('/admin/dashboard')
+    } else {
+      error.value = '密码错误'
+    }
+  } finally {
+    checking.value = false
   }
 }
 </script>

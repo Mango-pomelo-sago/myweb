@@ -135,3 +135,17 @@ export const listImages = async () => {
 }
 
 export { GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH }
+
+// 验证 GitHub Token 是否有效
+export const validateToken = async () => {
+  const token = getToken()
+  if (!token) return false
+  try {
+    const response = await axios.get('https://api.github.com/user', {
+      headers: { 'Authorization': `token ${token}` }
+    })
+    return response.status === 200
+  } catch (error) {
+    return false
+  }
+}

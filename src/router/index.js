@@ -83,13 +83,20 @@ const router = createRouter({
   routes
 })
 
-// 路由守卫：验证后台访问权限
+// 路由守卫：验证后台访问权限 + 登录过期检查
 router.beforeEach((to, from, next) => {
-  if (to.meta.requiresAuth && !localStorage.getItem('isAdmin')) {
-    next('/admin')
-  } else {
-    next()
+  if (to.meta.requiresAuth) {
+    const isAdmin = localStorage.getItem('isAdmin')
+    const expires = Number(localStorage.getItem('admin_expires') || 0)
+    // 未登录 或 已过期 → 清除标记并跳转登录页
+    if (!isAdmin || Date.now() > expires) {
+      localStorage.removeItem('isAdmin')
+      localStorage.removeItem('admin_expires')
+      next('/admin')
+      return
+    }
   }
+  next()
 })
 
 export default router
