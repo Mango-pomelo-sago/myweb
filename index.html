@@ -9,6 +9,17 @@
   </head>
   <body>
     <div id="app"></div>
+    <script>
+      // SPA 路由恢复：GitHub Pages 用 404.html 兜底时把原始路径存到 sessionStorage，
+      // 这里在应用启动前恢复，避免刷新后回到首页。
+      (function () {
+        var p = sessionStorage.getItem('spa_redirect');
+        if (p && p !== '/' && location.pathname !== p) {
+          history.replaceState(null, '', p);
+        }
+        sessionStorage.removeItem('spa_redirect');
+      })();
+    </script>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

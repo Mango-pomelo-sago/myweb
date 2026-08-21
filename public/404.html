@@ -6,21 +6,20 @@
   <script>
     // GitHub Pages SPA 路由回退方案
     // 当用户直接访问 /admin、/portfolio 等深链时，GitHub Pages 返回 404，
-    // 此页保存原始路径并重定向到根路径，SPA 加载后恢复路由。
+    // 此页保存原始路径并重定向到站点根目录，SPA 加载后恢复路由。
     (function() {
       var path = location.pathname + location.search + location.hash;
       if (path && path !== '/') {
         sessionStorage.setItem('spa_redirect', path);
       }
+      // 计算站点根目录：如果是 project pages（如 /myweb/），保留子路径
+      // 否则用 /
+      var basePath = location.pathname.replace(/\/[^/]*$/, '') || '/';
+      if (!basePath.endsWith('/')) basePath += '/';
+      window.location.replace(basePath);
     })();
   </script>
 </head>
 <body>
-  <script>
-    // 重定向到站点根目录（兼容 project pages 和 user pages）
-    var base = document.querySelector('base');
-    var root = base ? base.href : location.origin + '/';
-    window.location.replace(root);
-  </script>
 </body>
 </html>
