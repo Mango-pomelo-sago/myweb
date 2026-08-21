@@ -13,29 +13,29 @@
       <div class="contact-info">
         <div class="contact-item">
           <span class="label">邮箱</span>
-          <a :href="'mailto:' + data.value.profile.contact.email" class="value">
-            {{ data.value.profile.contact.email }}
+          <a :href="'mailto:' + data.profile.contact.email" class="value">
+            {{ data.profile.contact.email }}
           </a>
         </div>
-        
+
         <div class="contact-item">
           <span class="label">GitHub</span>
-          <a :href="data.value.profile.contact.github" target="_blank" class="value">
-            {{ data.value.profile.contact.githubName }}
+          <a :href="data.profile.contact.github" target="_blank" class="value">
+            {{ data.profile.contact.githubName }}
           </a>
         </div>
-        
+
         <div class="contact-item">
           <span class="label">抖音</span>
-          <a :href="data.value.profile.contact.douyin" target="_blank" class="value">
-            {{ data.value.profile.contact.douyinName }}
+          <a :href="data.profile.contact.douyin" target="_blank" class="value">
+            {{ data.profile.contact.douyinName }}
           </a>
         </div>
 
         <div class="contact-item">
           <span class="label">小红书</span>
-          <a :href="data.value.profile.contact.xiaohongshu" target="_blank" class="value">
-            {{ data.value.profile.contact.xiaohongshuName }}
+          <a :href="data.profile.contact.xiaohongshu" target="_blank" class="value">
+            {{ data.profile.contact.xiaohongshuName }}
           </a>
         </div>
       </div>

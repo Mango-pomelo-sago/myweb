@@ -18,3 +18,7 @@ src/assets/images/paint/
 
 # Chrome 璋冭瘯缂撳瓨
 .chrome-dump/
+
+# 本地环境变量（含 GitHub Token 等敏感信息，勿提交）
+.env
+.env.local
