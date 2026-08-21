@@ -11,12 +11,11 @@ const routes = [
         name: 'Home',
         component: () => import('../views/HomeView.vue')
       },
-      // 关于我页面暂隐藏，不删除
-      // {
-      //   path: 'about',
-      //   name: 'About',
-      //   component: () => import('../views/AboutView.vue')
-      // },
+      {
+        path: 'about',
+        name: 'About',
+        component: () => import('../views/AboutView.vue')
+      },
       {
         path: 'portfolio',
         name: 'Portfolio',

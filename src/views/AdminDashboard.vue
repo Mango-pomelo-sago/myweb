@@ -183,7 +183,20 @@
       <button class="btn btn-add" @click="addHomeGroup">+ 添加组</button>
     </section>
 
-    <!-- 4. 工作经历 -->
+    <!-- 4. 关于我 -->
+    <section v-if="activeTab === 'about'" class="section">
+      <h2 class="section-title">关于我</h2>
+      <div class="form-group">
+        <label>简介内容（Markdown 格式）</label>
+        <textarea v-model="editData.about.content" class="textarea" rows="10" placeholder="支持 Markdown 语法"></textarea>
+      </div>
+      <div class="form-group">
+        <label>技能标签（逗号分隔）</label>
+        <input v-model="editData.about.skills" class="input" placeholder="如 Vue, React, Node.js, Three.js" />
+      </div>
+    </section>
+
+    <!-- 5. 工作经历 -->
     <section v-if="activeTab === 'work'" class="section">
       <h2 class="section-title">工作经历</h2>
       <div
@@ -409,16 +422,22 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { siteData, loadSiteData } from '../utils/dataLoader'
 import { saveData, uploadImage, GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH } from '../utils/githubApi'
 
 const router = useRouter()
 
+// 草稿自动保存：localStorage 键
+const DRAFT_KEY = 'admin_draft_v1'
+// 最后一次自动保存的时间戳（用于草稿过期判断）
+let draftTimer = null
+
 // 深拷贝原始数据，在本地编辑
 const editData = reactive({
   profile: { contact: {} },
+  about: {},
   nav: [],
   home: [],
   work: { sections: [] },
@@ -432,6 +451,7 @@ function loadDataIntoEdit() {
   const src = siteData.value
   if (!src) return
   editData.profile = JSON.parse(JSON.stringify(src.profile || { contact: {} }))
+  editData.about = JSON.parse(JSON.stringify(src.about || {}))
   editData.nav = JSON.parse(JSON.stringify(src.nav || []))
   editData.home = JSON.parse(JSON.stringify(src.home || []))
   editData.work = JSON.parse(JSON.stringify(src.work || { sections: [] }))
@@ -440,11 +460,56 @@ function loadDataIntoEdit() {
   editData.gongzhonghao = JSON.parse(JSON.stringify(src.gongzhonghao || { title: '', sub: '', articles: [] }))
 }
 
+// ---------- 草稿：自动保存 + 恢复 ----------
+// 将当前编辑数据序列化存入 localStorage（节流：编辑后 800ms 静默期才写入）
+function scheduleDraftSave() {
+  if (draftTimer) clearTimeout(draftTimer)
+  draftTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ savedAt: Date.now(), ...serializeEditData() }))
+    } catch (e) {
+      /* localStorage 配额满/隐私模式，静默忽略 */
+    }
+  }, 800)
+}
+
+// 序列化编辑数据（避免保存 reactive 代理本身）
+function serializeEditData() {
+  return {
+    profile: JSON.parse(JSON.stringify(editData.profile)),
+    about: JSON.parse(JSON.stringify(editData.about || {})),
+    nav: JSON.parse(JSON.stringify(editData.nav)),
+    home: JSON.parse(JSON.stringify(editData.home)),
+    work: JSON.parse(JSON.stringify(editData.work)),
+    projects: JSON.parse(JSON.stringify(editData.projects)),
+    xiaohongshu: JSON.parse(JSON.stringify(editData.xiaohongshu)),
+    gongzhonghao: JSON.parse(JSON.stringify(editData.gongzhonghao))
+  }
+}
+
+// 读取草稿（不存在或损坏返回 null）
+function readDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY)
+    if (!raw) return null
+    const draft = JSON.parse(raw)
+    if (!draft || typeof draft !== 'object' || !('profile' in draft)) return null
+    return draft
+  } catch {
+    return null
+  }
+}
+
+function clearDraft() {
+  localStorage.removeItem(DRAFT_KEY)
+}
+
 // 选项卡
 const tabs = [
   { id: 'profile', label: '个人资料' },
   { id: 'nav', label: '导航' },
   { id: 'home', label: '首页诗歌' },
+  { id: 'about', label: '关于我' },
   { id: 'work', label: '工作经历' },
   { id: 'projects', label: '作品集' },
   { id: 'xiaohongshu', label: '小红书' },
@@ -463,8 +528,41 @@ function saveToken() {
   alert('Token 已保存到浏览器')
 }
 
+// 保存前校验必填字段，返回第一个错误信息（null = 通过）
+function validateData() {
+  if (!editData.profile || !editData.profile.name || !editData.profile.name.trim()) {
+    return { tab: 'profile', msg: '「姓名」不能为空' }
+  }
+  for (let i = 0; i < editData.nav.length; i++) {
+    const item = editData.nav[i]
+    if (!item.path || !item.path.trim()) return { tab: 'nav', msg: `导航第 ${i + 1} 项「路径」不能为空` }
+    if (!item.name || !item.name.trim()) return { tab: 'nav', msg: `导航第 ${i + 1} 项「中文名」不能为空` }
+  }
+  for (let i = 0; i < editData.projects.length; i++) {
+    if (!editData.projects[i].title || !editData.projects[i].title.trim()) {
+      return { tab: 'projects', msg: `作品集第 ${i + 1} 项「标题」不能为空` }
+    }
+  }
+  for (const section of editData.work.sections) {
+    for (const card of section.cards) {
+      if (!card.company || !card.company.trim()) {
+        return { tab: 'work', msg: `「${section.label}」中存在公司/项目为空的卡片` }
+      }
+    }
+  }
+  return null
+}
+
 // 保存到 GitHub
 async function handleSave() {
+  // 先校验必填字段
+  const invalid = validateData()
+  if (invalid) {
+    activeTab.value = invalid.tab
+    alert(invalid.msg)
+    return
+  }
+
   saving.value = true
   saved.value = false
   try {
@@ -472,6 +570,7 @@ async function handleSave() {
     const fullData = {
       ...siteData.value,
       profile: editData.profile,
+      about: editData.about,
       nav: editData.nav,
       home: editData.home,
       work: editData.work,
@@ -496,6 +595,8 @@ async function handleSave() {
       if (post.likes === '' || post.likes === null) post.likes = null
     }
     await saveData(fullData)
+    // 保存成功后清除草稿
+    clearDraft()
     saved.value = true
     setTimeout(() => { saved.value = false }, 3000)
   } catch (e) {
@@ -612,9 +713,31 @@ function copyText(text) {
   })
 }
 
+// 监听所有编辑字段的深度变化，自动安排草稿保存
+watch(
+  () => JSON.stringify(editData),
+  () => scheduleDraftSave()
+)
+
+// 上传图片成功后也触发一次草稿保存（图片 URL 复制场景不影响）
 onMounted(async () => {
-  await loadSiteData()
-  loadDataIntoEdit()
+  if (await loadSiteData()) loadDataIntoEdit()
+  // —— 草稿恢复逻辑：有草稿则提示用户，选择恢复则覆盖当前编辑数据 ——
+  const draft = readDraft()
+  if (draft) {
+    const ok = confirm(
+      '检测到未保存的草稿（保存于 ' + new Date(draft.savedAt || Date.now()).toLocaleString() + '）\n是否恢复？'
+    )
+    if (ok) {
+      if (editData.profile.contact) {
+        ;['profile', 'about', 'nav', 'home', 'work', 'projects', 'xiaohongshu', 'gongzhonghao'].forEach(k => {
+          if (draft[k] !== undefined) editData[k] = JSON.parse(JSON.stringify(draft[k]))
+        })
+      }
+    } else {
+      clearDraft()
+    }
+  }
 })
 </script>
 

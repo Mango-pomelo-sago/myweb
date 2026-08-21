@@ -17,6 +17,7 @@ const SCHEMA = {
   work: 'object',
   xiaohongshu: 'object',
   gongzhonghao: 'object',
+  about: 'object',
 }
 
 function isUsableData(data) {
@@ -66,7 +67,7 @@ function writeCache(data) {
  *  3. 命中缓存直接返回；远程成功则覆盖缓存；远程失败读缓存兜底
  */
 // 必须完整的关键字段：远程数据缺任何一个都视为不可用（旧版数据），改回本地
-const REQUIRED_KEYS = ['profile', 'nav', 'projects', 'home', 'work', 'xiaohongshu', 'gongzhonghao']
+const REQUIRED_KEYS = ['profile', 'nav', 'projects', 'home', 'work', 'xiaohongshu', 'gongzhonghao', 'about']
 
 export const loadSiteData = async (force = false) => {
   if (loadedRemote.value && !force) return siteData

@@ -9,33 +9,14 @@
     <!-- 隐藏的HTML内容，用于生成纹理（放在屏幕外） -->
     <div class="page-host" id="page-host" aria-hidden="true">
       <div class="page" id="page">
-        <section class="slide slide-1">
-          <h1>ABOUT ME</h1>
-          <p class="small-text">让我试试</p>
-          
-          <!-- 额外投影文字（在第一个slide内，绝对定位） -->
-          <div class="extra-text extra-side-left">
-            <h2>testtesttest</h2>
-          </div>
-          
-          <div class="extra-text extra-side-right">
-            <h2>testtesttest</h2>
-          </div>
-        </section>
-        
-        <section class="slide slide-2">
-          <h1>MANGO</h1>
-          <p class="small-text">让我试试</p>
-        </section>
-        
-        <section class="slide slide-3">
-          <h1>POMELO</h1>
-          <p class="small-text">让我试试</p>
-        </section>
-        
-        <section class="slide slide-4">
-          <h1>SAGO</h1>
-          <p class="small-text">让我试试</p>
+        <section
+          v-for="(slide, i) in aboutSlides"
+          :key="i"
+          class="slide"
+          :class="'slide-' + (i + 1)"
+        >
+          <h1>{{ slide.title }}</h1>
+          <p class="small-text">{{ slide.text }}</p>
         </section>
       </div>
     </div>
@@ -43,13 +24,26 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import Lenis from 'lenis'
+import { siteData, loadSiteData } from '../utils/dataLoader'
 
 const canvasContainer = ref(null)
+
+// 关于我内容（默认值，加载到 data.json 数据后由 renderAboutSlides 覆盖）
+const about = ref({
+  content: '你好，我是杨枝甘鹿。',
+  skills: ''
+})
+const aboutSlides = ref([
+  { title: 'ABOUT ME', text: '' },
+  { title: 'MANGO', text: '' },
+  { title: 'POMELO', text: '' },
+  { title: 'SAGO', text: '' },
+])
 
 // 常量定义（完全照搬原项目）
 const CAMERA_FOV = 45
@@ -500,14 +494,41 @@ const handleResize = () => {
 
 onMounted(async () => {
   console.log('=== AboutView 组件已挂载 ===')
+  // 加载数据（优先远程，fallback 本地）
+  await loadSiteData()
+  if (siteData.value && siteData.value.about) {
+    about.value = siteData.value.about
+  }
+  // 根据 about.content 构建幻灯片
+  buildAboutSlides()
+  await nextTick()
+
   initScene()
   setupLenis()
   await loadModel()
   animate()
-  
+
   window.addEventListener('resize', handleResize)
   console.log('=== 初始化完成 ===')
 })
+
+// 根据 about 数据构建 4 张幻灯片
+function buildAboutSlides() {
+  const content = about.value.content || ''
+  const skills = about.value.skills || ''
+  // 粗略按段落拆分
+  const paragraphs = content.split('\n\n').filter(Boolean)
+  aboutSlides.value = [
+    { title: 'ABOUT ME', text: paragraphs[0] || content },
+    { title: 'MANGO', text: paragraphs[1] || skills || '全栈开发 / 内容创作' },
+    { title: 'POMELO', text: paragraphs[2] || '' },
+    { title: 'SAGO', text: paragraphs[3] || '欢迎联系我' },
+  ]
+  // 更新 hidden 的 HTML 幻灯片内容
+  nextTick(() => {
+    rasterizePage()
+  })
+}
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
