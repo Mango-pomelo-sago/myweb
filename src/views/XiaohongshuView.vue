@@ -126,18 +126,18 @@
         <!-- 个人小红书 -->
         <section id="sec-personal" class="section">
           <h2 class="section-title">个人小红书</h2>
-          <p class="section-sub">个人账号 · {{ profile.contact.xiaohongshuName }}</p>
+          <p class="section-sub">{{ personalXiaohongshu.subtitle || ('个人账号 · ' + personalXiaohongshu.author) }}</p>
           <div class="section-divider"></div>
           <a
             class="personal-link"
-            :href="profile.contact.xiaohongshu"
+            :href="personalXiaohongshu.link || profile.contact.xiaohongshu"
             target="_blank"
             rel="noopener"
           >
             <img
               class="personal-img"
-              :src="personalImg"
-              :alt="profile.contact.xiaohongshuName"
+              :src="personalXhsImg"
+              :alt="personalXiaohongshu.author || profile.contact.xiaohongshuName"
               loading="lazy"
             />
           </a>
@@ -154,18 +154,18 @@
         <!-- 个人抖音 -->
         <section id="sec-douyin" class="section">
           <h2 class="section-title">个人抖音</h2>
-          <p class="section-sub">个人账号 · {{ profile.contact.douyinName }}</p>
+          <p class="section-sub">{{ personalDouyin.subtitle || ('个人账号 · ' + personalDouyin.author) }}</p>
           <div class="section-divider"></div>
           <a
             class="douyin-card"
-            :href="profile.contact.douyin"
+            :href="personalDouyin.link || profile.contact.douyin"
             target="_blank"
             rel="noopener"
           >
             <img
               class="douyin-img"
-              :src="douyinImg"
-              :alt="profile.contact.douyinName"
+              :src="personalDouyinImg"
+              :alt="personalDouyin.author || profile.contact.douyinName"
               loading="lazy"
             />
           </a>
@@ -235,6 +235,14 @@ const posts = computed(() =>
 // 公众号推文
 const articles = computed(() => (siteData.value && siteData.value.gongzhonghao && siteData.value.gongzhonghao.articles) ? siteData.value.gongzhonghao.articles : [])
 const gongzhonghaoSub = computed(() => (siteData.value && siteData.value.gongzhonghao && siteData.value.gongzhonghao.sub) ? siteData.value.gongzhonghao.sub : '')
+
+// 个人小红书数据（从 data.json 读取）
+const personalXiaohongshu = computed(() => (siteData.value && siteData.value.personalXiaohongshu) ? siteData.value.personalXiaohongshu : { author: '', subtitle: '', imageUrl: '', link: '' })
+const personalXhsImg = computed(() => personalXiaohongshu.value.imageUrl || personalImg)
+
+// 个人抖音数据（从 data.json 读取）
+const personalDouyin = computed(() => (siteData.value && siteData.value.personalDouyin) ? siteData.value.personalDouyin : { author: '', subtitle: '', imageUrl: '', link: '' })
+const personalDouyinImg = computed(() => personalDouyin.value.imageUrl || douyinImg)
 
 // 本页左侧导航分区
 const sections = [

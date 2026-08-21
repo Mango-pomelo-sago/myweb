@@ -100,4 +100,38 @@ export const uploadImage = async (file, filename) => {
   })
 }
 
+// 列出 public/images/ 目录下的所有图片
+export const listImages = async () => {
+  const token = getToken()
+  if (!token) throw new Error('未登录，请先配置 GitHub Token')
+
+  try {
+    const response = await axios.get(
+      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/public/images`,
+      { headers: { 'Authorization': `token ${token}` } }
+    )
+    // 只返回图片文件（按修改时间降序排列）
+    const imageExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp']
+    const images = response.data
+      .filter(f => f.type === 'file' && imageExts.some(ext => f.name.toLowerCase().endsWith(ext)))
+      .map(f => ({
+        name: f.name,
+        url: `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${f.path}`,
+        downloadUrl: f.download_url,
+        size: f.size,
+        updatedAt: new Date(f.sha.substring(0, 8), 16) // fallback, use path for sorting
+      }))
+      // 按名称降序（最新上传的在前）
+      .sort((a, b) => b.name.localeCompare(a.name))
+    return images
+  } catch (error) {
+    // 如果目录不存在（首次使用），返回空数组
+    if (error.response && error.response.status === 404) {
+      return []
+    }
+    console.error('获取图片列表失败:', error)
+    throw error
+  }
+}
+
 export { GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH }

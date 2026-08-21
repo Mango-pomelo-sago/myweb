@@ -873,5 +873,17 @@
         "url": "https://mp.weixin.qq.com/s/Xj3wVqYSJ1nY7tc2lh0zqg"
       }
     ]
+  },
+  "personalXiaohongshu": {
+    "author": "真是真菌",
+    "subtitle": "个人账号·真是真菌",
+    "imageUrl": "",
+    "link": ""
+  },
+  "personalDouyin": {
+    "author": "波音747生物能大蟑螂",
+    "subtitle": "个人账号·波音747生物能大蟑螂",
+    "imageUrl": "",
+    "link": ""
   }
 }

@@ -303,6 +303,7 @@
           <div class="form-group">
             <label>封面图片 URL</label>
             <input v-model="proj.coverImage" class="input" placeholder="留空=使用本地图片" />
+            <button class="btn btn-sm btn-pick" @click="openImagePicker('projects.' + pi + '.coverImage')">🖼 从已上传图片选择</button>
           </div>
         </div>
         <div class="form-group">
@@ -358,6 +359,7 @@
         <div class="form-group">
           <label>封面图片 URL</label>
           <input v-model="post.imageUrl" class="input" placeholder="留空=使用本地图片" />
+          <button class="btn btn-sm btn-pick" @click="openImagePicker('xiaohongshu.posts.' + pi + '.imageUrl')">🖼 从已上传图片选择</button>
         </div>
       </div>
       <button class="btn btn-add" @click="addXhsPost">+ 添加帖子</button>
@@ -394,7 +396,61 @@
       <button class="btn btn-add" @click="addGzhArticle">+ 添加文章</button>
     </section>
 
-    <!-- 8. 图片上传 -->
+    <!-- 8. 个人媒体（个人小红书/个人抖音） -->
+    <section v-if="activeTab === 'personal'" class="section">
+      <h2 class="section-title">个人媒体</h2>
+      <div class="personal-block">
+        <h3>个人小红书</h3>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>作者名</label>
+            <input v-model="editData.personalXiaohongshu.author" class="input" />
+          </div>
+          <div class="form-group">
+            <label>副标题（展示在页面）</label>
+            <input v-model="editData.personalXiaohongshu.subtitle" class="input" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>封面图片 URL</label>
+          <div class="url-picker-row">
+            <input v-model="editData.personalXiaohongshu.imageUrl" class="input" placeholder="点击右侧按钮从已上传图片中选择" />
+            <button class="btn btn-sm" @click="openImagePicker('personalXiaohongshu.imageUrl')">🖼 选择图片</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>链接</label>
+          <input v-model="editData.personalXiaohongshu.link" class="input" placeholder="个人主页链接（可选）" />
+        </div>
+      </div>
+
+      <div class="personal-block">
+        <h3>个人抖音</h3>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>作者名</label>
+            <input v-model="editData.personalDouyin.author" class="input" />
+          </div>
+          <div class="form-group">
+            <label>副标题（展示在页面）</label>
+            <input v-model="editData.personalDouyin.subtitle" class="input" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>封面图片 URL</label>
+          <div class="url-picker-row">
+            <input v-model="editData.personalDouyin.imageUrl" class="input" placeholder="点击右侧按钮从已上传图片中选择" />
+            <button class="btn btn-sm" @click="openImagePicker('personalDouyin.imageUrl')">🖼 选择图片</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>链接</label>
+          <input v-model="editData.personalDouyin.link" class="input" placeholder="个人主页链接（可选）" />
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. 图片上传 -->
     <section v-if="activeTab === 'images'" class="section">
       <h2 class="section-title">图片上传</h2>
       <p class="hint">上传图片到 GitHub，上传后自动返回 URL，可复制到对应字段中使用</p>
@@ -417,7 +473,52 @@
           <button class="btn btn-sm" @click="copyText(item.url)">复制</button>
         </div>
       </div>
+
+      <!-- 已上传图片列表 -->
+      <div class="image-list-section">
+        <h3>已上传图片</h3>
+        <button class="btn btn-sm" @click="refreshImageList" :disabled="loadingImages">
+          {{ loadingImages ? '加载中…' : '刷新列表' }}
+        </button>
+        <div v-if="imageList.length === 0 && !loadingImages" class="hint">暂无已上传的图片</div>
+        <div class="image-grid">
+          <div
+            v-for="img in imageList"
+            :key="img.name"
+            class="image-item"
+            @click="copyText(img.url)"
+            :title="'点击复制 URL: ' + img.name"
+          >
+            <img :src="img.downloadUrl" :alt="img.name" class="image-thumb" loading="lazy" />
+            <span class="image-name">{{ img.name }}</span>
+          </div>
+        </div>
+      </div>
     </section>
+
+    <!-- 图片选择器模态框（选择后直接填入目标字段） -->
+    <div v-if="pickTarget" class="modal-overlay" @click.self="pickTarget = null">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>选择已上传图片</h3>
+          <button class="btn btn-sm" @click="pickTarget = null">关闭</button>
+        </div>
+        <div v-if="loadingImages" class="hint">加载中…</div>
+        <div v-else-if="imageList.length === 0" class="hint">暂无已上传图片，请先到「图片上传」选项卡上传</div>
+        <div v-else class="image-grid">
+          <div
+            v-for="img in imageList"
+            :key="img.name"
+            class="image-item"
+            @click="pickImage(img.downloadUrl)"
+            :title="img.name"
+          >
+            <img :src="img.downloadUrl" :alt="img.name" class="image-thumb" loading="lazy" />
+            <span class="image-name">{{ img.name }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -425,7 +526,7 @@
 import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { siteData, loadSiteData } from '../utils/dataLoader'
-import { saveData, uploadImage, GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH } from '../utils/githubApi'
+import { saveData, uploadImage, listImages, GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH } from '../utils/githubApi'
 
 const router = useRouter()
 
@@ -443,7 +544,9 @@ const editData = reactive({
   work: { sections: [] },
   projects: [],
   xiaohongshu: { posts: [] },
-  gongzhonghao: { articles: [] }
+  gongzhonghao: { articles: [] },
+  personalXiaohongshu: {},
+  personalDouyin: {}
 })
 
 // 加载数据到编辑区
@@ -458,6 +561,8 @@ function loadDataIntoEdit() {
   editData.projects = JSON.parse(JSON.stringify(src.projects || []))
   editData.xiaohongshu = JSON.parse(JSON.stringify(src.xiaohongshu || { author: '', posts: [] }))
   editData.gongzhonghao = JSON.parse(JSON.stringify(src.gongzhonghao || { title: '', sub: '', articles: [] }))
+  editData.personalXiaohongshu = JSON.parse(JSON.stringify(src.personalXiaohongshu || { author: '', subtitle: '', imageUrl: '', link: '' }))
+  editData.personalDouyin = JSON.parse(JSON.stringify(src.personalDouyin || { author: '', subtitle: '', imageUrl: '', link: '' }))
 }
 
 // ---------- 草稿：自动保存 + 恢复 ----------
@@ -483,7 +588,9 @@ function serializeEditData() {
     work: JSON.parse(JSON.stringify(editData.work)),
     projects: JSON.parse(JSON.stringify(editData.projects)),
     xiaohongshu: JSON.parse(JSON.stringify(editData.xiaohongshu)),
-    gongzhonghao: JSON.parse(JSON.stringify(editData.gongzhonghao))
+    gongzhonghao: JSON.parse(JSON.stringify(editData.gongzhonghao)),
+    personalXiaohongshu: JSON.parse(JSON.stringify(editData.personalXiaohongshu || {})),
+    personalDouyin: JSON.parse(JSON.stringify(editData.personalDouyin || {}))
   }
 }
 
@@ -514,6 +621,7 @@ const tabs = [
   { id: 'projects', label: '作品集' },
   { id: 'xiaohongshu', label: '小红书' },
   { id: 'gongzhonghao', label: '公众号' },
+  { id: 'personal', label: '个人媒体' },
   { id: 'images', label: '图片上传' },
 ]
 const activeTab = ref('profile')
@@ -576,7 +684,9 @@ async function handleSave() {
       work: editData.work,
       projects: editData.projects,
       xiaohongshu: editData.xiaohongshu,
-      gongzhonghao: editData.gongzhonghao
+      gongzhonghao: editData.gongzhonghao,
+      personalXiaohongshu: editData.personalXiaohongshu,
+      personalDouyin: editData.personalDouyin
     }
     // 保存时处理 scrambleDuration 为 null 的字段
     // 递归处理 home 中的 null scrambleDuration
@@ -687,6 +797,22 @@ const selectedFiles = ref([])
 const uploading = ref(false)
 const uploadedUrls = ref([])
 
+// 已上传图片列表（从 GitHub public/images 读取）
+const imageList = ref([])
+const loadingImages = ref(false)
+
+async function refreshImageList() {
+  loadingImages.value = true
+  try {
+    imageList.value = await listImages()
+  } catch (e) {
+    console.error('获取图片列表失败:', e)
+    imageList.value = []
+  } finally {
+    loadingImages.value = false
+  }
+}
+
 function handleFileSelect(e) {
   selectedFiles.value = Array.from(e.target.files || [])
   uploadedUrls.value = []
@@ -705,12 +831,44 @@ async function uploadFiles() {
     }
   }
   uploading.value = false
+  // 上传完成后刷新已上传列表
+  refreshImageList()
 }
 
+// 复制/填入图片 URL
 function copyText(text) {
   navigator.clipboard.writeText(text).then(() => {
     alert('已复制到剪贴板')
   })
+}
+
+// 图片选择器：当前编辑的目标字段 + 方法
+const pickTarget = ref(null)
+function openImagePicker(field) {
+  pickTarget.value = field
+  refreshImageList()
+}
+function pickImage(url) {
+  if (!pickTarget.value) return
+  const t = pickTarget.value
+  const parts = t.split('.')
+  // 支持 editData.xxx 深层路径 或 editData.arr[i].field
+  const key = parts.shift()
+  const obj = editData[key]
+  if (!obj) return
+  // 用 lodash 风格 setter 简化
+  setByPath(editData, t, url)
+  pickTarget.value = null
+  alert('已填入图片 URL')
+}
+function setByPath(obj, path, value) {
+  const parts = path.split('.')
+  let cur = obj
+  for (let i = 0; i < parts.length - 1; i++) {
+    cur = cur[parts[i]]
+    if (!cur) return
+  }
+  cur[parts[parts.length - 1]] = value
 }
 
 // 监听所有编辑字段的深度变化，自动安排草稿保存
@@ -730,7 +888,7 @@ onMounted(async () => {
     )
     if (ok) {
       if (editData.profile.contact) {
-        ;['profile', 'about', 'nav', 'home', 'work', 'projects', 'xiaohongshu', 'gongzhonghao'].forEach(k => {
+        ;['profile', 'about', 'nav', 'home', 'work', 'projects', 'xiaohongshu', 'gongzhonghao', 'personalXiaohongshu', 'personalDouyin'].forEach(k => {
           if (draft[k] !== undefined) editData[k] = JSON.parse(JSON.stringify(draft[k]))
         })
       }
@@ -1026,6 +1184,121 @@ code {
 }
 .url-item code {
   font-size: 12px;
+  flex: 1;
+}
+
+/* 从已上传图片选择按钮 */
+.btn-pick {
+  margin-top: 6px;
+  border-color: var(--nyc-green);
+  color: var(--nyc-green);
+}
+.btn-pick:hover {
+  background: var(--nyc-green);
+  color: var(--nyc-white);
+}
+
+/* 已上传图片网格 */
+.image-list-section {
+  margin-top: 32px;
+  border-top: 2px solid #eee;
+  padding-top: 20px;
+}
+.image-list-section h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.image-item {
+  border: 2px solid #eee;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+  background: #fafafa;
+}
+.image-item:hover {
+  border-color: var(--nyc-green);
+  transform: translateY(-2px);
+}
+.image-thumb {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+}
+.image-name {
+  display: block;
+  font-size: 11px;
+  color: #666;
+  padding: 6px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 图片选择器模态框 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal {
+  background: var(--nyc-white);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 640px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* 个人媒体区块 */
+.personal-block {
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.personal-block h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #333;
+  border-bottom: 2px solid var(--nyc-green);
+  padding-bottom: 8px;
+}
+.url-picker-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.url-picker-row .input {
   flex: 1;
 }
 
