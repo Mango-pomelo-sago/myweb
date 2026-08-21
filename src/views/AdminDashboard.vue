@@ -6,6 +6,7 @@
       <div class="header-actions">
         <span v-if="saving" class="saving-indicator">保存中…</span>
         <span v-if="saved" class="saved-indicator">✓ 已保存</span>
+        <button class="btn btn-preview" @click="openPreview">预览</button>
         <button class="btn btn-save" @click="handleSave" :disabled="saving">保存到 GitHub</button>
         <button class="btn btn-logout" @click="handleLogout">退出</button>
       </div>
@@ -35,7 +36,7 @@
         class="tab"
         :class="{ active: activeTab === tab.id }"
         @click="activeTab = tab.id"
-      >{{ tab.label }}</button>
+      >{{ tab.label }}<span v-if="dirtyTabs.has(tab.id)" class="dirty-dot">●</span></button>
     </nav>
 
     <!-- ============================================ -->
@@ -98,6 +99,14 @@
         v-for="(item, i) in editData.nav"
         :key="i"
         class="card"
+        :class="{ 'drag-over': dragOverIndex === i && dragSource === 'nav' }"
+        draggable="true"
+        @dragstart="onDragStart(i, 'nav')"
+        @dragover.prevent="onDragOver(i)"
+        @dragenter="onDragEnter(i)"
+        @dragleave="onDragLeave(i)"
+        @drop.prevent="onDrop(i, 'nav')"
+        @dragend="dragEnd"
       >
         <div class="form-row-3">
           <div class="form-group">
@@ -203,6 +212,14 @@
         v-for="(section, si) in editData.work.sections"
         :key="section.id"
         class="card"
+        :class="{ 'drag-over': dragOverIndex === si && dragSource === 'workSections' }"
+        draggable="true"
+        @dragstart="onDragStart(si, 'workSections')"
+        @dragover.prevent="onDragOver(si)"
+        @dragenter="onDragEnter(si)"
+        @dragleave="onDragLeave(si)"
+        @drop.prevent="onDrop(si, 'workSections')"
+        @dragend="dragEnd"
       >
         <div class="card-header">
           <span class="card-title">{{ section.label }}</span>
@@ -222,6 +239,14 @@
           v-for="(card, ci) in section.cards"
           :key="ci"
           class="sub-card"
+          :class="{ 'drag-over': dragOverIndex === ci && dragSource === 'workCards' }"
+          draggable="true"
+          @dragstart="onDragStart(ci, 'workCards-' + si)"
+          @dragover.prevent="onDragOver(ci)"
+          @dragenter="onDragEnter(ci)"
+          @dragleave="onDragLeave(ci)"
+          @drop.prevent="onDropWorkCard(ci, si)"
+          @dragend="dragEnd"
         >
           <div class="card-header">
             <span class="card-title">卡片 {{ ci + 1 }}：{{ card.company }}</span>
@@ -272,6 +297,14 @@
         v-for="(proj, pi) in editData.projects"
         :key="proj.id"
         class="card"
+        :class="{ 'drag-over': dragOverIndex === pi && dragSource === 'projects' }"
+        draggable="true"
+        @dragstart="onDragStart(pi, 'projects')"
+        @dragover.prevent="onDragOver(pi)"
+        @dragenter="onDragEnter(pi)"
+        @dragleave="onDragLeave(pi)"
+        @drop.prevent="onDrop(pi, 'projects')"
+        @dragend="dragEnd"
       >
         <div class="card-header">
           <span class="card-title">{{ proj.title }}</span>
@@ -331,6 +364,14 @@
         v-for="(post, pi) in editData.xiaohongshu.posts"
         :key="post.id"
         class="card"
+        :class="{ 'drag-over': dragOverIndex === pi && dragSource === 'xiaohongshu' }"
+        draggable="true"
+        @dragstart="onDragStart(pi, 'xiaohongshu')"
+        @dragover.prevent="onDragOver(pi)"
+        @dragenter="onDragEnter(pi)"
+        @dragleave="onDragLeave(pi)"
+        @drop.prevent="onDrop(pi, 'xiaohongshu')"
+        @dragend="dragEnd"
       >
         <div class="card-header">
           <span class="card-title">{{ post.title }}</span>
@@ -380,6 +421,14 @@
         v-for="(art, ai) in editData.gongzhonghao.articles"
         :key="ai"
         class="card"
+        :class="{ 'drag-over': dragOverIndex === ai && dragSource === 'gongzhonghao' }"
+        draggable="true"
+        @dragstart="onDragStart(ai, 'gongzhonghao')"
+        @dragover.prevent="onDragOver(ai)"
+        @dragenter="onDragEnter(ai)"
+        @dragleave="onDragLeave(ai)"
+        @drop.prevent="onDrop(ai, 'gongzhonghao')"
+        @dragend="dragEnd"
       >
         <div class="form-row-2">
           <div class="form-group">
@@ -611,6 +660,124 @@ function clearDraft() {
   localStorage.removeItem(DRAFT_KEY)
 }
 
+// 拖拽排序状态
+const dragIndex = ref(null)
+const dragOverIndex = ref(null)
+const dragSource = ref(null)
+
+function onDragStart(index, source) {
+  dragIndex.value = index
+  dragSource.value = source
+}
+
+function onDragOver(index) {
+  if (dragIndex.value === null) return
+  dragOverIndex.value = index
+}
+
+function onDragEnter(index) {
+  dragOverIndex.value = index
+}
+
+function onDragLeave(index) {
+  if (dragOverIndex.value === index) {
+    dragOverIndex.value = null
+  }
+}
+
+function onDrop(index, target) {
+  if (dragIndex.value === null || dragIndex.value === index) {
+    dragEnd()
+    return
+  }
+  const arr = resolveArray(target)
+  if (!arr) { dragEnd(); return }
+  const from = dragIndex.value
+  const to = index
+  const [removed] = arr.splice(from, 1)
+  const insertAt = to > from ? to - 1 : to
+  arr.splice(insertAt, 0, removed)
+  dragEnd()
+}
+
+function onDropWorkCard(index, sectionIdx) {
+  if (dragIndex.value === null || dragIndex.value === index) {
+    dragEnd()
+    return
+  }
+  const section = editData.work.sections[sectionIdx]
+  if (!section) { dragEnd(); return }
+  const from = dragIndex.value
+  const to = index
+  const [removed] = section.cards.splice(from, 1)
+  const insertAt = to > from ? to - 1 : to
+  section.cards.splice(insertAt, 0, removed)
+  dragEnd()
+}
+
+function dragEnd() {
+  dragIndex.value = null
+  dragOverIndex.value = null
+  dragSource.value = null
+}
+
+function resolveArray(name) {
+  switch (name) {
+    case 'nav': return editData.nav
+    case 'projects': return editData.projects
+    case 'xiaohongshu': return editData.xiaohongshu.posts
+    case 'gongzhonghao': return editData.gongzhonghao.articles
+    case 'workSections': return editData.work.sections
+    default: return null
+  }
+}
+
+// 已修改标记：记录哪些选项卡有未保存的变更
+const dirtyTabs = ref(new Set())
+function markDirty(tabId) {
+  dirtyTabs.value.add(tabId)
+}
+function clearDirty() {
+  dirtyTabs.value = new Set()
+}
+// 监听编辑数据变化，标记对应选项卡为已修改
+watch(
+  () => JSON.stringify(editData.profile),
+  () => markDirty('profile')
+)
+watch(
+  () => JSON.stringify(editData.about),
+  () => markDirty('about')
+)
+watch(
+  () => JSON.stringify(editData.nav),
+  () => markDirty('nav')
+)
+watch(
+  () => JSON.stringify(editData.home),
+  () => markDirty('home')
+)
+watch(
+  () => JSON.stringify(editData.work),
+  () => markDirty('work')
+)
+watch(
+  () => JSON.stringify(editData.projects),
+  () => markDirty('projects')
+)
+watch(
+  () => JSON.stringify(editData.xiaohongshu),
+  () => markDirty('xiaohongshu')
+)
+watch(
+  () => JSON.stringify(editData.gongzhonghao),
+  () => markDirty('gongzhonghao')
+)
+watch(
+  () => JSON.stringify(editData.personalXiaohongshu) + JSON.stringify(editData.personalDouyin),
+  () => markDirty('personal')
+)
+
 // 选项卡
 const tabs = [
   { id: 'profile', label: '个人资料' },
@@ -707,6 +874,8 @@ async function handleSave() {
     await saveData(fullData)
     // 保存成功后清除草稿
     clearDraft()
+    // 清除所有修改标记
+    clearDirty()
     saved.value = true
     setTimeout(() => { saved.value = false }, 3000)
   } catch (e) {
@@ -842,6 +1011,25 @@ function copyText(text) {
   })
 }
 
+// 预览模式：将当前编辑数据注入 sessionStorage，然后在新标签页打开前台
+function openPreview() {
+  const previewData = {
+    ...serializeEditData(),
+    // 确保预览数据完整
+    about: editData.about || {},
+    personalXiaohongshu: editData.personalXiaohongshu || {},
+    personalDouyin: editData.personalDouyin || {}
+  }
+  try {
+    sessionStorage.setItem('preview_data', JSON.stringify(previewData))
+    // 计算站点的根路径（hash 路由模式下，去掉 # 后面的部分）
+    const base = window.location.href.split('#')[0]
+    window.open(base, '_blank')
+  } catch (e) {
+    alert('预览启动失败：' + (e.message || e))
+  }
+}
+
 // 图片选择器：当前编辑的目标字段 + 方法
 const pickTarget = ref(null)
 function openImagePicker(field) {
@@ -974,6 +1162,15 @@ onMounted(async () => {
   background: var(--nyc-green);
   border-color: var(--nyc-green);
   color: var(--nyc-white);
+}
+.btn-preview {
+  border-color: var(--nyc-green);
+  color: var(--nyc-green);
+}
+.btn-preview:hover {
+  background: var(--nyc-green);
+  color: var(--nyc-white);
+  border-color: var(--nyc-green);
 }
 .btn-logout {
   border-color: #e74c3c;
@@ -1196,6 +1393,34 @@ code {
 .btn-pick:hover {
   background: var(--nyc-green);
   color: var(--nyc-white);
+}
+
+/* 拖拽排序 */
+.card.dragging, .sub-card.dragging {
+  opacity: 0.5;
+}
+.drag-over {
+  border-color: var(--nyc-green) !important;
+  box-shadow: 0 0 0 2px var(--nyc-green);
+}
+.card[draggable="true"], .sub-card[draggable="true"] {
+  cursor: grab;
+}
+.card[draggable="true"]:active, .sub-card[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+/* 修改标记 */
+.dirty-dot {
+  color: #e74c3c;
+  font-size: 10px;
+  margin-left: 2px;
+  vertical-align: super;
+}
+
+/* 预览按钮点击后禁用短暂防连点 */
+.btn-preview:active {
+  opacity: 0.7;
 }
 
 /* 已上传图片网格 */

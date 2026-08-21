@@ -7,6 +7,30 @@ const siteData = ref(localData)
 const loading = ref(false)
 const loadedRemote = ref(false)
 
+// 预览模式支持：后台编辑时点击「预览」会将编辑数据注入 sessionStorage
+// 前台页面启动时优先读取预览数据，实现"保存前看效果"
+function checkPreviewData() {
+  try {
+    const raw = sessionStorage.getItem('preview_data')
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (parsed && typeof parsed === 'object' && 'profile' in parsed) {
+        siteData.value = parsed
+        loadedRemote.value = true
+        // 读取后立即清除，避免刷新页面后仍显示旧的预览数据
+        sessionStorage.removeItem('preview_data')
+        return true
+      }
+    }
+  } catch (e) {
+    /* ignore */
+  }
+  return false
+}
+
+// 在模块加载时立即检查预览数据
+checkPreviewData()
+
 // 值类型校验：远程数据里数组字段必须是数组、对象字段必须是对象。
 // 防后台编辑时手滑把某一栏改成字符串/数字/空串 → 之前因此导致整页渲染报错（如 v-for 遍历字符串）变白屏。
 const SCHEMA = {
