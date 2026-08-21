@@ -20,12 +20,16 @@
         <input
           type="password"
           v-model="githubToken"
-          placeholder="输入 GitHub Personal Access Token"
+          placeholder="输入 GitHub Fine-grained Personal Access Token"
           class="input"
         />
         <button class="btn btn-sm" @click="saveToken">保存 Token</button>
       </div>
-      <p class="hint">Token 需要 <code>repo</code> 权限，仅保存在浏览器 localStorage 中</p>
+      <p class="hint">
+        请创建<strong>细粒度 Token</strong>（Fine-grained PAT）：仓库选择 <code>{{ GITHUB_OWNER }}/{{ GITHUB_REPO }}</code>，
+        权限只勾选 <code>Contents: Read and write</code>，过期时间设为 90 天。Token 仅保存在浏览器 localStorage，
+        切勿使用带 <code>repo</code> 全仓库权限的 Token。
+      </p>
       <p v-if="tokenValid === true" class="token-status token-ok">✓ Token 有效</p>
       <p v-if="tokenValid === false" class="token-status token-invalid">✗ Token 无效或已过期，请重新配置</p>
     </section>
@@ -633,7 +637,7 @@ function loadDataIntoEdit() {
   editData.gongzhonghao = JSON.parse(JSON.stringify(src.gongzhonghao || { title: '', sub: '', articles: [] }))
   editData.personalXiaohongshu = JSON.parse(JSON.stringify(src.personalXiaohongshu || { author: '', subtitle: '', imageUrl: '', link: '' }))
   editData.personalDouyin = JSON.parse(JSON.stringify(src.personalDouyin || { author: '', subtitle: '', imageUrl: '', link: '' }))
-  editData.adminPassword = (src.adminPassword || 'admin123')
+  editData.adminPassword = (src.adminPassword || '')
 }
 
 // ---------- 草稿：自动保存 + 恢复 ----------
@@ -662,7 +666,7 @@ function serializeEditData() {
     gongzhonghao: JSON.parse(JSON.stringify(editData.gongzhonghao)),
     personalXiaohongshu: JSON.parse(JSON.stringify(editData.personalXiaohongshu || {})),
     personalDouyin: JSON.parse(JSON.stringify(editData.personalDouyin || {})),
-    adminPassword: editData.adminPassword || 'admin123'
+    adminPassword: editData.adminPassword || ''
   }
 }
 
@@ -862,7 +866,7 @@ async function changePassword() {
     return
   }
   // 验证当前密码是否与 data.json 中的一致
-  const currentAdminPassword = (siteData.value && siteData.value.adminPassword) || 'admin123'
+  const currentAdminPassword = (siteData.value && siteData.value.adminPassword) || ''
   if (currentPassword.value !== currentAdminPassword) {
     passwordMsg.value = '当前密码错误'
     passwordOk.value = false
@@ -927,7 +931,7 @@ async function handleSave() {
       gongzhonghao: editData.gongzhonghao,
       personalXiaohongshu: editData.personalXiaohongshu,
       personalDouyin: editData.personalDouyin,
-      adminPassword: editData.adminPassword || 'admin123'
+      adminPassword: editData.adminPassword || ''
     }
     // 保存时处理 scrambleDuration 为 null 的字段
     // 递归处理 home 中的 null scrambleDuration

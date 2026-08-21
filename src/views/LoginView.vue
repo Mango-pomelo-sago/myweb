@@ -36,9 +36,9 @@ const password = ref('')
 const error = ref('')
 const checking = ref(false)
 
-// 从 data.json 获取当前密码（默认为 admin123）
+// 从 data.json 获取当前密码（无回退硬编码）
 function getAdminPassword() {
-  return (siteData.value && siteData.value.adminPassword) || 'admin123'
+  return (siteData.value && siteData.value.adminPassword) || ''
 }
 
 const handleLogin = async () => {
@@ -50,7 +50,9 @@ const handleLogin = async () => {
     await loadSiteData(true)
 
     const adminPassword = getAdminPassword()
-    if (password.value === adminPassword) {
+    if (!adminPassword) {
+      error.value = '后台密码未配置，无法登录'
+    } else if (password.value === adminPassword) {
       // 登录成功：设置登录标记 + 过期时间（24小时）
       localStorage.setItem('isAdmin', 'true')
       localStorage.setItem('admin_expires', String(Date.now() + 24 * 60 * 60 * 1000))
@@ -61,7 +63,9 @@ const handleLogin = async () => {
   } catch (e) {
     // 加载失败时用本地数据
     const adminPassword = getAdminPassword()
-    if (password.value === adminPassword) {
+    if (!adminPassword) {
+      error.value = '后台密码未配置，无法登录'
+    } else if (password.value === adminPassword) {
       localStorage.setItem('isAdmin', 'true')
       localStorage.setItem('admin_expires', String(Date.now() + 24 * 60 * 60 * 1000))
       router.push('/admin/dashboard')

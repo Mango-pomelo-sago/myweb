@@ -7,7 +7,9 @@ const GITHUB_BRANCH = 'main'
 const DATA_FILE_PATH = 'data.json'
 
 const getToken = () => {
-  return localStorage.getItem('github_token') || import.meta.env.VITE_GITHUB_TOKEN || ''
+  // 仅从 localStorage 读取用户输入的 Token。
+  // 注意：绝不读取环境变量（VITE_* 会在构建期被内联进公开 bundle，等于泄露凭据）。
+  return localStorage.getItem('github_token') || ''
 }
 
 // 获取数据（从 GitHub raw 读取）
@@ -71,13 +73,28 @@ export const uploadImage = async (file, filename) => {
   const token = getToken()
   if (!token) throw new Error('未登录，请先配置 GitHub Token')
 
+  // 文件类型白名单：只允许图片格式，拒绝 SVG（含脚本风险）
+  const ALLOWED_EXTS = ['jpg', 'jpeg', 'png', 'webp']
+  const ext = (filename.split('.').pop() || '').toLowerCase()
+  if (!ALLOWED_EXTS.includes(ext)) {
+    throw new Error(`不支持的文件格式 .${ext}，仅允许：${ALLOWED_EXTS.join(', ')}`)
+  }
+
+  // 文件大小限制：5MB
+  const MAX_SIZE = 5 * 1024 * 1024
+  if (file.size > MAX_SIZE) {
+    throw new Error(`文件过大（${(file.size / 1024 / 1024).toFixed(1)}MB），最大允许 5MB`)
+  }
+
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = async () => {
       try {
         const base64Content = reader.result.split(',')[1]
         const timestamp = Date.now()
-        const filePath = `public/images/${timestamp}_${filename}`
+        const randomStr = Math.random().toString(36).substring(2, 8)
+        // 用随机文件名取代原始文件名，防止路径遍历和特殊字符注入
+        const filePath = `public/images/${timestamp}_${randomStr}.${ext}`
 
         await axios.put(
           `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`,
@@ -111,7 +128,7 @@ export const listImages = async () => {
       { headers: { 'Authorization': `token ${token}` } }
     )
     // 只返回图片文件（按修改时间降序排列）
-    const imageExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp']
+    const imageExts = ['.jpg', '.jpeg', '.png', '.webp']
     const images = response.data
       .filter(f => f.type === 'file' && imageExts.some(ext => f.name.toLowerCase().endsWith(ext)))
       .map(f => ({
@@ -119,7 +136,7 @@ export const listImages = async () => {
         url: `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${f.path}`,
         downloadUrl: f.download_url,
         size: f.size,
-        updatedAt: new Date(f.sha.substring(0, 8), 16) // fallback, use path for sorting
+        updatedAt: new Date(f.updated_at)
       }))
       // 按名称降序（最新上传的在前）
       .sort((a, b) => b.name.localeCompare(a.name))

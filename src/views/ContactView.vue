@@ -20,21 +20,21 @@
 
         <div class="contact-item">
           <span class="label">GitHub</span>
-          <a :href="data.profile.contact.github" target="_blank" class="value">
+          <a :href="data.profile.contact.github" target="_blank" rel="noopener noreferrer" class="value">
             {{ data.profile.contact.githubName }}
           </a>
         </div>
 
         <div class="contact-item">
           <span class="label">抖音</span>
-          <a :href="data.profile.contact.douyin" target="_blank" class="value">
+          <a :href="data.profile.contact.douyin" target="_blank" rel="noopener noreferrer" class="value">
             {{ data.profile.contact.douyinName }}
           </a>
         </div>
 
         <div class="contact-item">
           <span class="label">小红书</span>
-          <a :href="data.profile.contact.xiaohongshu" target="_blank" class="value">
+          <a :href="data.profile.contact.xiaohongshu" target="_blank" rel="noopener noreferrer" class="value">
             {{ data.profile.contact.xiaohongshuName }}
           </a>
         </div>
