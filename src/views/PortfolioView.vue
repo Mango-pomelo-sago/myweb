@@ -19,7 +19,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import data from '../../data.json'
+import { siteData } from '../utils/dataLoader'
 import GooeySlideshow from '../components/GooeySlideshow.vue'
 import LetterPlay from '../components/LetterPlay.vue'
 import xhsCover from '@/assets/images/xiaohongshu/🙀听说复旦人的期末季将近，怎么办？_1_复旦大学_来自小红书网页版.jpg'
@@ -27,8 +27,8 @@ import xhsHover from '@/assets/images/xiaohongshu/征集｜2025你在复旦收�
 
 const router = useRouter()
 
-// 可见项目(过滤掉标记为 hidden 的项目)
-const projects = computed(() => data.projects.filter((p) => !p.hidden))
+// 可见项目(过滤掉标记为 hidden 的项目)，从 data.json 读取
+const projects = computed(() => (siteData.value && siteData.value.projects ? siteData.value.projects : []).filter((p) => !p.hidden))
 
 // 各分类封面:glob 到本分类全部大图(design/paint/photo),
 // 封面(第一张)与悬停切换图(第二张)都取分类内实际图片;
@@ -89,12 +89,12 @@ const slides = computed(() =>
   projects.value.map((p) => ({
     id: p.id,
     title: p.title,
-    en: EN_TITLES[p.detail] || '',
+    en: p.enTitle || EN_TITLES[p.detail] || '',
     desc: p.desc,
-    base: covers[p.detail] || '',
-    hover: hoverCovers[p.detail] || covers[p.detail] || '',
+    base: p.coverImage || covers[p.detail] || '',
+    hover: p.coverImage || hoverCovers[p.detail] || covers[p.detail] || '',
     detail: p.detail,
-    curveConfig: CURVE_CONFIGS[p.detail] || null,
+    curveConfig: p.curveConfig || CURVE_CONFIGS[p.detail] || null,
   }))
 )
 

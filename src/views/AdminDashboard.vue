@@ -1,0 +1,917 @@
+<template>
+  <div class="admin-dashboard">
+    <!-- 顶部导航栏 -->
+    <header class="admin-header">
+      <h1 class="admin-title">后台管理面板</h1>
+      <div class="header-actions">
+        <span v-if="saving" class="saving-indicator">保存中…</span>
+        <span v-if="saved" class="saved-indicator">✓ 已保存</span>
+        <button class="btn btn-save" @click="handleSave" :disabled="saving">保存到 GitHub</button>
+        <button class="btn btn-logout" @click="handleLogout">退出</button>
+      </div>
+    </header>
+
+    <!-- 设置区：GitHub Token -->
+    <section class="section token-section">
+      <h2 class="section-title">GitHub 配置</h2>
+      <div class="form-row">
+        <label>GitHub Token</label>
+        <input
+          type="password"
+          v-model="githubToken"
+          placeholder="输入 GitHub Personal Access Token"
+          class="input"
+        />
+        <button class="btn btn-sm" @click="saveToken">保存 Token</button>
+      </div>
+      <p class="hint">Token 需要 <code>repo</code> 权限，仅保存在浏览器 localStorage 中</p>
+    </section>
+
+    <!-- 选项卡导航 -->
+    <nav class="tab-nav">
+      <button
+        v-for="tab in tabs"
+        :key="tab.id"
+        class="tab"
+        :class="{ active: activeTab === tab.id }"
+        @click="activeTab = tab.id"
+      >{{ tab.label }}</button>
+    </nav>
+
+    <!-- ============================================ -->
+    <!-- 选项卡内容 -->
+    <!-- ============================================ -->
+
+    <!-- 1. 个人资料 -->
+    <section v-if="activeTab === 'profile'" class="section">
+      <h2 class="section-title">个人资料</h2>
+      <div class="form-group">
+        <label>姓名</label>
+        <input v-model="editData.profile.name" class="input" />
+      </div>
+      <div class="form-group">
+        <label>标语</label>
+        <input v-model="editData.profile.slogan" class="input" />
+      </div>
+      <div class="form-group">
+        <label>关于我</label>
+        <textarea v-model="editData.profile.about" class="textarea" rows="4"></textarea>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group">
+          <label>邮箱</label>
+          <input v-model="editData.profile.contact.email" class="input" />
+        </div>
+        <div class="form-group">
+          <label>GitHub 链接</label>
+          <input v-model="editData.profile.contact.github" class="input" />
+        </div>
+        <div class="form-group">
+          <label>GitHub 用户名</label>
+          <input v-model="editData.profile.contact.githubName" class="input" />
+        </div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group">
+          <label>抖音链接</label>
+          <input v-model="editData.profile.contact.douyin" class="input" />
+        </div>
+        <div class="form-group">
+          <label>抖音名称</label>
+          <input v-model="editData.profile.contact.douyinName" class="input" />
+        </div>
+        <div class="form-group">
+          <label>小红书名称</label>
+          <input v-model="editData.profile.contact.xiaohongshuName" class="input" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>小红书链接</label>
+        <input v-model="editData.profile.contact.xiaohongshu" class="input" />
+      </div>
+    </section>
+
+    <!-- 2. 导航项 -->
+    <section v-if="activeTab === 'nav'" class="section">
+      <h2 class="section-title">导航菜单</h2>
+      <div
+        v-for="(item, i) in editData.nav"
+        :key="i"
+        class="card"
+      >
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>路径</label>
+            <input v-model="item.path" class="input" />
+          </div>
+          <div class="form-group">
+            <label>中文名</label>
+            <input v-model="item.name" class="input" />
+          </div>
+          <div class="form-group">
+            <label>英文标签</label>
+            <input v-model="item.label" class="input" />
+          </div>
+        </div>
+        <button class="btn btn-danger btn-sm" @click="removeNavItem(i)">删除</button>
+      </div>
+      <button class="btn btn-add" @click="addNavItem">+ 添加导航项</button>
+    </section>
+
+    <!-- 3. 首页诗歌 -->
+    <section v-if="activeTab === 'home'" class="section">
+      <h2 class="section-title">首页诗歌文字</h2>
+      <p class="hint">每组包含一个或多个元素（element），可设置位置、动画参数</p>
+      <div
+        v-for="(group, gi) in editData.home"
+        :key="gi"
+        class="card"
+      >
+        <div class="card-header">
+          <span class="card-title">第 {{ gi + 1 }} 组</span>
+          <button class="btn btn-danger btn-sm" @click="removeHomeGroup(gi)">删除组</button>
+        </div>
+        <div
+          v-for="(el, ei) in group.elements"
+          :key="ei"
+          class="sub-card"
+        >
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>文本</label>
+              <input v-model="el.text" class="input" />
+            </div>
+            <div class="form-group">
+              <label>位置 class（如 pos-1）</label>
+              <input v-model="el.class" class="input" />
+            </div>
+          </div>
+          <div class="form-row-4">
+            <div class="form-group">
+              <label>目标位置</label>
+              <input v-model="el.altPos" class="input" />
+            </div>
+            <div class="form-group">
+              <label>大号字体</label>
+              <select v-model="el.xl" class="input">
+                <option :value="false">否</option>
+                <option :value="true">是</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>打字光标</label>
+              <select v-model="el.typingIndicator" class="input">
+                <option :value="false">否</option>
+                <option :value="true">是</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>闪烁时长(s)</label>
+              <input v-model="el.scrambleDuration" class="input" placeholder="留空=默认" />
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Flip 缓动</label>
+              <input v-model="el.flipEase" class="input" placeholder="如 expo.in, 留空=默认" />
+            </div>
+          </div>
+          <button class="btn btn-danger btn-sm" @click="removeHomeElement(gi, ei)">删除元素</button>
+        </div>
+        <button class="btn btn-add btn-sm" @click="addHomeElement(gi)">+ 添加元素</button>
+      </div>
+      <button class="btn btn-add" @click="addHomeGroup">+ 添加组</button>
+    </section>
+
+    <!-- 4. 工作经历 -->
+    <section v-if="activeTab === 'work'" class="section">
+      <h2 class="section-title">工作经历</h2>
+      <div
+        v-for="(section, si) in editData.work.sections"
+        :key="section.id"
+        class="card"
+      >
+        <div class="card-header">
+          <span class="card-title">{{ section.label }}</span>
+          <button class="btn btn-danger btn-sm" @click="removeWorkSection(si)">删除分区</button>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>分区 ID</label>
+            <input v-model="section.id" class="input" />
+          </div>
+          <div class="form-group">
+            <label>分区名称</label>
+            <input v-model="section.label" class="input" />
+          </div>
+        </div>
+        <div
+          v-for="(card, ci) in section.cards"
+          :key="ci"
+          class="sub-card"
+        >
+          <div class="card-header">
+            <span class="card-title">卡片 {{ ci + 1 }}：{{ card.company }}</span>
+            <button class="btn btn-danger btn-sm" @click="removeWorkCard(si, ci)">删除卡片</button>
+          </div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label>时间</label>
+              <input v-model="card.time" class="input" />
+            </div>
+            <div class="form-group">
+              <label>公司/项目</label>
+              <input v-model="card.company" class="input" />
+            </div>
+            <div class="form-group">
+              <label>角色</label>
+              <input v-model="card.role" class="input" />
+            </div>
+          </div>
+          <div
+            v-for="(detail, di) in card.details"
+            :key="di"
+            class="detail-row"
+          >
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>标题</label>
+                <input v-model="detail.label" class="input" />
+              </div>
+              <div class="form-group">
+                <label>描述</label>
+                <input v-model="detail.text" class="input" />
+              </div>
+            </div>
+            <button class="btn btn-danger btn-sm" @click="removeWorkDetail(si, ci, di)">删除</button>
+          </div>
+          <button class="btn btn-add btn-sm" @click="addWorkDetail(si, ci)">+ 添加详情</button>
+        </div>
+        <button class="btn btn-add btn-sm" @click="addWorkCard(si)">+ 添加卡片</button>
+      </div>
+      <button class="btn btn-add" @click="addWorkSection">+ 添加分区</button>
+    </section>
+
+    <!-- 5. 项目（作品集） -->
+    <section v-if="activeTab === 'projects'" class="section">
+      <h2 class="section-title">作品集项目</h2>
+      <div
+        v-for="(proj, pi) in editData.projects"
+        :key="proj.id"
+        class="card"
+      >
+        <div class="card-header">
+          <span class="card-title">{{ proj.title }}</span>
+          <button class="btn btn-danger btn-sm" @click="removeProject(pi)">删除项目</button>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>ID</label>
+            <input v-model="proj.id" type="number" class="input" />
+          </div>
+          <div class="form-group">
+            <label>标题</label>
+            <input v-model="proj.title" class="input" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>描述</label>
+          <input v-model="proj.desc" class="input" />
+        </div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>英文标题</label>
+            <input v-model="proj.enTitle" class="input" />
+          </div>
+          <div class="form-group">
+            <label>详情页标识</label>
+            <input v-model="proj.detail" class="input" />
+          </div>
+          <div class="form-group">
+            <label>封面图片 URL</label>
+            <input v-model="proj.coverImage" class="input" placeholder="留空=使用本地图片" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>链接</label>
+          <input v-model="proj.link" class="input" />
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" v-model="proj.hidden" />
+            隐藏该项目
+          </label>
+        </div>
+      </div>
+      <button class="btn btn-add" @click="addProject">+ 添加项目</button>
+    </section>
+
+    <!-- 6. 小红书帖子 -->
+    <section v-if="activeTab === 'xiaohongshu'" class="section">
+      <h2 class="section-title">小红书帖子</h2>
+      <div class="form-group">
+        <label>作者名称</label>
+        <input v-model="editData.xiaohongshu.author" class="input" />
+      </div>
+      <div
+        v-for="(post, pi) in editData.xiaohongshu.posts"
+        :key="post.id"
+        class="card"
+      >
+        <div class="card-header">
+          <span class="card-title">{{ post.title }}</span>
+          <button class="btn btn-danger btn-sm" @click="removeXhsPost(pi)">删除</button>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>ID</label>
+            <input v-model="post.id" type="number" class="input" />
+          </div>
+          <div class="form-group">
+            <label>标题</label>
+            <input v-model="post.title" class="input" />
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>链接</label>
+            <input v-model="post.link" class="input" />
+          </div>
+          <div class="form-group">
+            <label>点赞数</label>
+            <input v-model="post.likes" type="number" class="input" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>封面图片 URL</label>
+          <input v-model="post.imageUrl" class="input" placeholder="留空=使用本地图片" />
+        </div>
+      </div>
+      <button class="btn btn-add" @click="addXhsPost">+ 添加帖子</button>
+    </section>
+
+    <!-- 7. 公众号 -->
+    <section v-if="activeTab === 'gongzhonghao'" class="section">
+      <h2 class="section-title">公众号文章</h2>
+      <div class="form-group">
+        <label>区块标题</label>
+        <input v-model="editData.gongzhonghao.title" class="input" />
+      </div>
+      <div class="form-group">
+        <label>副标题</label>
+        <input v-model="editData.gongzhonghao.sub" class="input" />
+      </div>
+      <div
+        v-for="(art, ai) in editData.gongzhonghao.articles"
+        :key="ai"
+        class="card"
+      >
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>文章标题</label>
+            <input v-model="art.title" class="input" />
+          </div>
+          <div class="form-group">
+            <label>链接</label>
+            <input v-model="art.url" class="input" />
+          </div>
+        </div>
+        <button class="btn btn-danger btn-sm" @click="removeGzhArticle(ai)">删除</button>
+      </div>
+      <button class="btn btn-add" @click="addGzhArticle">+ 添加文章</button>
+    </section>
+
+    <!-- 8. 图片上传 -->
+    <section v-if="activeTab === 'images'" class="section">
+      <h2 class="section-title">图片上传</h2>
+      <p class="hint">上传图片到 GitHub，上传后自动返回 URL，可复制到对应字段中使用</p>
+      <div class="upload-area">
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          @change="handleFileSelect"
+          class="file-input"
+        />
+        <button class="btn" @click="uploadFiles" :disabled="uploading || selectedFiles.length === 0">
+          {{ uploading ? '上传中…' : `上传 ${selectedFiles.length} 个文件` }}
+        </button>
+      </div>
+      <div v-if="uploadedUrls.length" class="uploaded-urls">
+        <h3>上传成功，URL 列表：</h3>
+        <div v-for="(item, i) in uploadedUrls" :key="i" class="url-item">
+          <code>{{ item.url }}</code>
+          <button class="btn btn-sm" @click="copyText(item.url)">复制</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</template>
+
+<script setup>
+import { ref, reactive, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { siteData, loadSiteData } from '../utils/dataLoader'
+import { saveData, uploadImage, GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH } from '../utils/githubApi'
+
+const router = useRouter()
+
+// 深拷贝原始数据，在本地编辑
+const editData = reactive({
+  profile: { contact: {} },
+  nav: [],
+  home: [],
+  work: { sections: [] },
+  projects: [],
+  xiaohongshu: { posts: [] },
+  gongzhonghao: { articles: [] }
+})
+
+// 加载数据到编辑区
+function loadDataIntoEdit() {
+  const src = siteData.value
+  if (!src) return
+  editData.profile = JSON.parse(JSON.stringify(src.profile || { contact: {} }))
+  editData.nav = JSON.parse(JSON.stringify(src.nav || []))
+  editData.home = JSON.parse(JSON.stringify(src.home || []))
+  editData.work = JSON.parse(JSON.stringify(src.work || { sections: [] }))
+  editData.projects = JSON.parse(JSON.stringify(src.projects || []))
+  editData.xiaohongshu = JSON.parse(JSON.stringify(src.xiaohongshu || { author: '', posts: [] }))
+  editData.gongzhonghao = JSON.parse(JSON.stringify(src.gongzhonghao || { title: '', sub: '', articles: [] }))
+}
+
+// 选项卡
+const tabs = [
+  { id: 'profile', label: '个人资料' },
+  { id: 'nav', label: '导航' },
+  { id: 'home', label: '首页诗歌' },
+  { id: 'work', label: '工作经历' },
+  { id: 'projects', label: '作品集' },
+  { id: 'xiaohongshu', label: '小红书' },
+  { id: 'gongzhonghao', label: '公众号' },
+  { id: 'images', label: '图片上传' },
+]
+const activeTab = ref('profile')
+
+// 保存状态
+const saving = ref(false)
+const saved = ref(false)
+const githubToken = ref(localStorage.getItem('github_token') || '')
+
+function saveToken() {
+  localStorage.setItem('github_token', githubToken.value)
+  alert('Token 已保存到浏览器')
+}
+
+// 保存到 GitHub
+async function handleSave() {
+  saving.value = true
+  saved.value = false
+  try {
+    // 构建完整数据对象
+    const fullData = {
+      ...siteData.value,
+      profile: editData.profile,
+      nav: editData.nav,
+      home: editData.home,
+      work: editData.work,
+      projects: editData.projects,
+      xiaohongshu: editData.xiaohongshu,
+      gongzhonghao: editData.gongzhonghao
+    }
+    // 保存时处理 scrambleDuration 为 null 的字段
+    // 递归处理 home 中的 null scrambleDuration
+    for (const group of fullData.home) {
+      for (const el of group.elements) {
+        if (el.scrambleDuration === '' || el.scrambleDuration === null) {
+          el.scrambleDuration = null
+        } else if (typeof el.scrambleDuration === 'string') {
+          const parsed = parseFloat(el.scrambleDuration)
+          el.scrambleDuration = isNaN(parsed) ? null : parsed
+        }
+      }
+    }
+    // 处理 likes 空字符串
+    for (const post of fullData.xiaohongshu.posts) {
+      if (post.likes === '' || post.likes === null) post.likes = null
+    }
+    await saveData(fullData)
+    saved.value = true
+    setTimeout(() => { saved.value = false }, 3000)
+  } catch (e) {
+    alert('保存失败：' + (e.message || e))
+  } finally {
+    saving.value = false
+  }
+}
+
+function handleLogout() {
+  localStorage.removeItem('isAdmin')
+  router.push('/admin')
+}
+
+// ----- 导航项操作 -----
+function addNavItem() {
+  editData.nav.push({ path: '/', name: '新页面', label: 'New' })
+}
+function removeNavItem(i) {
+  editData.nav.splice(i, 1)
+}
+
+// ----- 首页诗歌操作 -----
+function addHomeGroup() {
+  editData.home.push({
+    elements: [{ text: '新文字', class: 'pos-1', altPos: 'pos-2', scrambleDuration: null, xl: false, typingIndicator: false, flipEase: null }]
+  })
+}
+function removeHomeGroup(gi) {
+  editData.home.splice(gi, 1)
+}
+function addHomeElement(gi) {
+  editData.home[gi].elements.push({ text: '', class: 'pos-1', altPos: 'pos-1', scrambleDuration: null, xl: false, typingIndicator: false, flipEase: null })
+}
+function removeHomeElement(gi, ei) {
+  editData.home[gi].elements.splice(ei, 1)
+}
+
+// ----- 工作经历操作 -----
+function addWorkSection() {
+  const id = 'sec-' + Date.now()
+  editData.work.sections.push({ id, label: '新分区', cards: [] })
+}
+function removeWorkSection(si) {
+  editData.work.sections.splice(si, 1)
+}
+function addWorkCard(si) {
+  editData.work.sections[si].cards.push({ time: '', company: '', role: '', details: [] })
+}
+function removeWorkCard(si, ci) {
+  editData.work.sections[si].cards.splice(ci, 1)
+}
+function addWorkDetail(si, ci) {
+  editData.work.sections[si].cards[ci].details.push({ label: '', text: '' })
+}
+function removeWorkDetail(si, ci, di) {
+  editData.work.sections[si].cards[ci].details.splice(di, 1)
+}
+
+// ----- 项目操作 -----
+function addProject() {
+  const maxId = Math.max(...editData.projects.map(p => p.id), 0)
+  editData.projects.push({ id: maxId + 1, title: '新项目', desc: '', enTitle: '', detail: '', coverImage: '', link: '', hidden: false, curveConfig: null })
+}
+function removeProject(pi) {
+  editData.projects.splice(pi, 1)
+}
+
+// ----- 小红书操作 -----
+function addXhsPost() {
+  const maxId = Math.max(...editData.xiaohongshu.posts.map(p => p.id), 0)
+  editData.xiaohongshu.posts.push({ id: maxId + 1, title: '新帖子', link: '', likes: null, imageUrl: '' })
+}
+function removeXhsPost(pi) {
+  editData.xiaohongshu.posts.splice(pi, 1)
+}
+
+// ----- 公众号操作 -----
+function addGzhArticle() {
+  editData.gongzhonghao.articles.push({ title: '新文章', url: '' })
+}
+function removeGzhArticle(ai) {
+  editData.gongzhonghao.articles.splice(ai, 1)
+}
+
+// ----- 图片上传 -----
+const selectedFiles = ref([])
+const uploading = ref(false)
+const uploadedUrls = ref([])
+
+function handleFileSelect(e) {
+  selectedFiles.value = Array.from(e.target.files || [])
+  uploadedUrls.value = []
+}
+
+async function uploadFiles() {
+  uploading.value = true
+  uploadedUrls.value = []
+  for (const file of selectedFiles.value) {
+    try {
+      const url = await uploadImage(file, file.name)
+      uploadedUrls.value.push({ name: file.name, url })
+    } catch (e) {
+      console.error('上传失败:', file.name, e)
+      uploadedUrls.value.push({ name: file.name, url: '上传失败: ' + (e.message || e) })
+    }
+  }
+  uploading.value = false
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    alert('已复制到剪贴板')
+  })
+}
+
+onMounted(async () => {
+  await loadSiteData()
+  loadDataIntoEdit()
+})
+</script>
+
+<style scoped>
+.admin-dashboard {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 20px 80px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* 头部 */
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 4px solid var(--nyc-black);
+  margin-bottom: 24px;
+}
+
+.admin-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--nyc-black);
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.saving-indicator {
+  color: #f59e0b;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.saved-indicator {
+  color: var(--nyc-green);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* 按钮 */
+.btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  border: 2px solid var(--nyc-black);
+  background: var(--nyc-white);
+  color: var(--nyc-black);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn:hover {
+  background: var(--nyc-yellow);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 12px;
+}
+.btn-save {
+  background: var(--nyc-black);
+  color: var(--nyc-white);
+}
+.btn-save:hover {
+  background: var(--nyc-green);
+  border-color: var(--nyc-green);
+  color: var(--nyc-white);
+}
+.btn-logout {
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+.btn-logout:hover {
+  background: #e74c3c;
+  color: var(--nyc-white);
+}
+.btn-add {
+  margin-top: 12px;
+  border-style: dashed;
+  border-color: var(--nyc-green);
+  color: var(--nyc-green);
+}
+.btn-add:hover {
+  background: var(--nyc-green);
+  color: var(--nyc-white);
+}
+.btn-danger {
+  border-color: #e74c3c;
+  color: #e74c3c;
+  margin-top: 8px;
+}
+.btn-danger:hover {
+  background: #e74c3c;
+  color: var(--nyc-white);
+}
+
+/* 选项卡 */
+.tab-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 2px;
+}
+
+.tab {
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  color: #888;
+  transition: all 0.15s ease;
+}
+.tab:hover {
+  color: var(--nyc-black);
+  background: #f5f5f5;
+}
+.tab.active {
+  color: var(--nyc-black);
+  border-bottom-color: var(--nyc-green);
+}
+
+/* 区块 */
+.section {
+  margin-bottom: 32px;
+}
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--nyc-black);
+  margin: 0 0 16px;
+}
+
+/* 表单 */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.form-group label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.form-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.form-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+.form-row-4 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+.input, .textarea {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.15s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+.input:focus, .textarea:focus {
+  border-color: var(--nyc-green);
+}
+.textarea {
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+}
+select.input {
+  appearance: auto;
+}
+.hint {
+  font-size: 13px;
+  color: #999;
+  margin: 4px 0 16px;
+}
+code {
+  font-size: 12px;
+  background: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+/* 卡片 */
+.card {
+  border: 2px solid #eee;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: #fafafa;
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--nyc-black);
+}
+.sub-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 12px;
+  margin: 8px 0;
+  background: var(--nyc-white);
+}
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+}
+.detail-row .form-row-2 {
+  flex: 1;
+}
+
+/* Token 配置 */
+.token-section {
+  background: #fffbe6;
+  border: 2px solid #fde68a;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+/* 图片上传 */
+.upload-area {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.file-input {
+  font-size: 14px;
+}
+.uploaded-urls {
+  margin-top: 16px;
+}
+.uploaded-urls h3 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.url-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+  word-break: break-all;
+}
+.url-item code {
+  font-size: 12px;
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .form-row-2, .form-row-3, .form-row-4 {
+    grid-template-columns: 1fr;
+  }
+  .form-row {
+    flex-direction: column;
+  }
+}
+</style>

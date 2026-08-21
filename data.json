@@ -13,6 +13,12 @@
       "xiaohongshuName": "真是真菌"
     }
   },
+  "nav": [
+    { "path": "/", "name": "首页", "label": "Home" },
+    { "path": "/portfolio", "name": "作品集", "label": "Portfolio" },
+    { "path": "/work", "name": "我的工作", "label": "Work" },
+    { "path": "/contact", "name": "联系我", "label": "Contact" }
+  ],
   "projects": [
     {
       "id": 1,
@@ -20,7 +26,13 @@
       "desc": "海报、品牌视觉等平面设计作品。",
       "image": "https://via.placeholder.com/400x300/FFD100/000000?text=Graphic+Design",
       "link": "",
-      "detail": "design"
+      "detail": "design",
+      "enTitle": "Graphic Design",
+      "curveConfig": {
+        "name": "Rose Two",
+        "roseA": 9.2, "roseABoost": 0.6, "roseBreathBase": 0.72, "roseBreathBoost": 0.28, "roseK": 2, "roseScale": 3.25,
+        "rotate": true, "particleCount": 74, "trailSpan": 0.3, "durationMs": 5200, "rotationDurationMs": 28000, "pulseDurationMs": 4300, "strokeWidth": 4.6
+      }
     },
     {
       "id": 2,
@@ -28,7 +40,13 @@
       "desc": "社交媒体内容策划与运营案例。",
       "image": "https://via.placeholder.com/400x300/00935F/FFFFFF?text=Social+Media",
       "link": "",
-      "detail": "xiaohongshu"
+      "detail": "xiaohongshu",
+      "enTitle": "Social Media",
+      "curveConfig": {
+        "name": "Rose Curve",
+        "roseA": 9.2, "roseABoost": 0.6, "roseBreathBase": 0.72, "roseBreathBoost": 0.28, "roseK": 5, "roseScale": 3.25,
+        "rotate": true, "particleCount": 78, "trailSpan": 0.32, "durationMs": 5400, "rotationDurationMs": 28000, "pulseDurationMs": 4600, "strokeWidth": 4.5
+      }
     },
     {
       "id": 3,
@@ -36,7 +54,9 @@
       "desc": "界面与交互设计作品。",
       "image": "https://via.placeholder.com/400x300/000000/FFD100?text=UIUX+Design",
       "link": "",
-      "hidden": true
+      "hidden": true,
+      "enTitle": "UIUX Design",
+      "curveConfig": null
     },
     {
       "id": 4,
@@ -44,7 +64,13 @@
       "desc": "手绘与数字绘画作品。",
       "image": "https://via.placeholder.com/400x300/FFD100/000000?text=Painting",
       "link": "",
-      "detail": "paint"
+      "detail": "paint",
+      "enTitle": "Painting",
+      "curveConfig": {
+        "name": "Thinking Five",
+        "baseRadius": 7, "detailAmplitude": 3, "petalCount": 5, "curveScale": 3.9,
+        "rotate": true, "particleCount": 62, "trailSpan": 0.38, "durationMs": 4600, "rotationDurationMs": 28000, "pulseDurationMs": 4200, "strokeWidth": 5.5
+      }
     },
     {
       "id": 5,
@@ -52,179 +78,216 @@
       "desc": "摄影作品集。",
       "image": "https://via.placeholder.com/400x300/00935F/FFFFFF?text=Photography",
       "link": "",
-      "detail": "photo"
+      "detail": "photo",
+      "enTitle": "Photography",
+      "curveConfig": {
+        "name": "Rose Four",
+        "roseA": 9.2, "roseABoost": 0.6, "roseBreathBase": 0.72, "roseBreathBoost": 0.28, "roseK": 4, "roseScale": 3.25,
+        "rotate": true, "particleCount": 78, "trailSpan": 0.32, "durationMs": 5400, "rotationDurationMs": 28000, "pulseDurationMs": 4500, "strokeWidth": 4.6
+      }
     }
   ],
+  "home": [
+    { "elements": [{ "text": "Shall I compare thee to a summer's day?", "class": "pos-4", "altPos": "pos-2", "scrambleDuration": null, "xl": false, "typingIndicator": false, "flipEase": null }] },
+    { "elements": [{ "text": "Thou art more lovely and more temperate:", "class": "pos-1", "altPos": "pos-3", "scrambleDuration": null, "xl": false, "typingIndicator": false, "flipEase": null }] },
+    { "elements": [{ "text": "Y", "class": "pos-1", "altPos": "pos-2", "scrambleDuration": 2.5, "xl": true, "typingIndicator": false, "flipEase": null }] },
+    { "elements": [{ "text": "鏡越し貴方と 瞳の奥の私と", "class": "pos-1", "altPos": "pos-3", "scrambleDuration": 0, "xl": false, "typingIndicator": false, "flipEase": null }, { "text": "█", "class": "pos-1", "altPos": "pos-3", "scrambleDuration": 0, "xl": false, "typingIndicator": true, "flipEase": null }] },
+    { "elements": [{ "text": "Rough winds do shake the darling buds of May,", "class": "pos-2", "altPos": "pos-5", "scrambleDuration": null, "xl": false, "typingIndicator": false, "flipEase": null }] },
+    { "elements": [{ "text": "Z", "class": "pos-3", "altPos": "pos-9", "scrambleDuration": 2.5, "xl": true, "typingIndicator": false, "flipEase": null }] },
+    { "elements": [{ "text": "And summer's lease hath all too short a date;", "class": "pos-3", "altPos": "pos-2", "scrambleDuration": null, "xl": false, "typingIndicator": false, "flipEase": null }] },
+    { "elements": [{ "text": "灰に潜り 秒針を噛み", "class": "pos-1", "altPos": "pos-3", "scrambleDuration": 0, "xl": false, "typingIndicator": false, "flipEase": null }, { "text": "█", "class": "pos-1", "altPos": "pos-3", "scrambleDuration": 0, "xl": false, "typingIndicator": true, "flipEase": null }] },
+    { "elements": [{ "text": "Sometime too hot the eye of heaven shines,", "class": "pos-2", "altPos": "pos-4", "scrambleDuration": null, "xl": false, "typingIndicator": false, "flipEase": null }] },
+    { "elements": [{ "text": "G", "class": "pos-1", "altPos": "pos-3", "scrambleDuration": 2.5, "xl": true, "typingIndicator": false, "flipEase": null }] },
+    { "elements": [{ "text": "And often is his gold complexion dimm'd;", "class": "pos-2", "altPos": "pos-9", "scrambleDuration": null, "xl": false, "typingIndicator": false, "flipEase": null }] },
+    { "elements": [{ "text": "L", "class": "pos-3", "altPos": "pos-10", "scrambleDuration": 2.5, "xl": true, "typingIndicator": false, "flipEase": "expo.in" }] },
+    { "elements": [{ "text": "And every fair from fair sometime declines,", "class": "pos-4", "altPos": "pos-3", "scrambleDuration": null, "xl": false, "typingIndicator": false, "flipEase": null }] },
+    { "elements": [{ "text": "ゴミ箱に捨てた 転生林檎", "class": "pos-1", "altPos": "pos-3", "scrambleDuration": 0, "xl": false, "typingIndicator": false, "flipEase": null }, { "text": "█", "class": "pos-1", "altPos": "pos-3", "scrambleDuration": 0, "xl": false, "typingIndicator": true, "flipEase": null }] },
+    { "elements": [{ "text": "By chance or nature's changing course untrimm'd:", "class": "pos-3", "altPos": "pos-5", "scrambleDuration": null, "xl": false, "typingIndicator": false, "flipEase": null }] },
+    { "elements": [{ "text": "I", "class": "pos-2", "altPos": "pos-3", "scrambleDuration": 2.5, "xl": true, "typingIndicator": false, "flipEase": null }] },
+    { "elements": [{ "text": "But thy eternal summer shall not fade", "class": "pos-3", "altPos": "pos-6", "scrambleDuration": null, "xl": false, "typingIndicator": false, "flipEase": null }] },
+    { "elements": [{ "text": "Nor lose possession of that fair thou owest;", "class": "pos-2", "altPos": "pos-7", "scrambleDuration": null, "xl": false, "typingIndicator": false, "flipEase": null }] },
+    { "elements": [{ "text": "Nor shall Death brag thou wand'rest in his shade,", "class": "pos-3", "altPos": "pos-8", "scrambleDuration": null, "xl": false, "typingIndicator": false, "flipEase": null }, { "text": "When in eternal lines to time thou growest", "class": "pos-3", "altPos": "pos-8", "scrambleDuration": null, "xl": false, "typingIndicator": false, "flipEase": null }] },
+    { "elements": [{ "text": "So long as men can breathe or eyes can see,", "class": "pos-1", "altPos": "pos-1", "scrambleDuration": null, "xl": false, "typingIndicator": false, "flipEase": null }, { "text": "So long lives this, and this gives life to thee.", "class": "pos-1", "altPos": "pos-2", "scrambleDuration": null, "xl": false, "typingIndicator": false, "flipEase": null }] }
+  ],
+  "work": {
+    "sections": [
+      {
+        "id": "sec-intern",
+        "label": "实习经历",
+        "cards": [
+          {
+            "time": "2026.01 – 2026.03",
+            "company": "上海悠星网络科技有限公司",
+            "role": "新媒体运营实习生",
+            "details": [
+              { "label": "内容运营", "text": "负责\"基沃托斯百货\"账号内容发布，定期完成流量、互动、转化等数据统计分析，依据数据反馈优化内容方向与发布节奏，提升账号活跃度。" },
+              { "label": "AI赋能项目支持", "text": "独立使用Cursor进行Vibe Coding赋能工作流，完成素材收集、信息分类；开展二次元游戏竞品营销活动、宣传内容专项调研，梳理竞品优势与运营思路。" },
+              { "label": "活动策划", "text": "全流程策划线上主题活动，构思活动形式与宣传话术，协助推进活动落地、宣发推广与流程跟进。" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sec-project",
+        "label": "项目经历",
+        "cards": [
+          {
+            "time": "2025.07 – 2025.08",
+            "company": "原创桌游项目",
+            "role": "美术、游戏机制设计",
+            "details": [
+              { "label": "游戏机制设计", "text": "参与全原创大富翁类桌游经济系统与规则框架搭建，完成核心玩法原型测试与迭代。" },
+              { "label": "视觉设计", "text": "负责全角色造型、地图及UI视觉设计，形成完整美术风格指南，提升产品辨识度。" },
+              { "label": "团队协作", "text": "协同推进产品开发，完成demo版本，获校内项目晋级机会。" }
+            ]
+          },
+          {
+            "time": "2025.03 – 2025.04",
+            "company": "欧莱雅\"有意思青年\"商赛",
+            "role": "队长",
+            "details": [
+              { "label": "全案策划", "text": "主导校园义卖营销方案，完成市场调研、竞品分析、创意策划与落地规划，短时间内完成方案3次迭代。" },
+              { "label": "团队管理", "text": "统筹8人团队分工，把控项目进度，主导终版PPT设计与现场答辩，获企业评委高度认可。" }
+            ]
+          },
+          {
+            "time": "2025.08 – 2025.09",
+            "company": "复旦大学行业分析大赛（二等奖）",
+            "role": "核心成员",
+            "details": [
+              { "label": "数据分析", "text": "运用Python爬虫采集女性向游戏市场数据，进行清洗、归类与可视化分析。" },
+              { "label": "报告撰写", "text": "撰写近万字行业研究报告，提出市场趋势判断与运营建议，助力团队获校级二等奖。" }
+            ]
+          },
+          {
+            "time": "2025.09 – 2025.10",
+            "company": "第四届毕马威ESG案例分析大赛",
+            "role": "核心成员",
+            "details": [
+              { "label": "调研整理", "text": "负责纺织品产业链ESG相关资料收集、数据整理与案例梳理。" },
+              { "label": "企业洞察", "text": "参与撰写可持续改进方案，从环保、社会责任与企业治理三方面提出具体建议。" }
+            ]
+          },
+          {
+            "time": "2024.12 – 至今",
+            "company": "自媒体账号运营",
+            "role": "总负责",
+            "details": [
+              { "label": "冷启动账号", "text": "独立策划并0基础启动寝室日常类抖音账号，完成账号定位、内容规划与视觉设计。" },
+              { "label": "全流程运营", "text": "负责选题策划、脚本撰写、拍摄剪辑、发布推广及数据复盘，累计发布视频40+条。" },
+              { "label": "运营成果", "text": "半年内获赞7k+，积累粉丝500+，单条视频最高播放量10w+、获赞2.2k+，互动率超过行业平均水平。" }
+            ]
+          },
+          {
+            "time": "2025.12 – 至今",
+            "company": "大学生创业项目\"薯格工作室\"",
+            "role": "核心成员",
+            "details": [
+              { "label": "全栈项目支持", "text": "参与城市实景游戏策划，协作完成小程序UI设计、后端数据库维护、活动流程搭建，触达玩家1.3k+。" },
+              { "label": "品牌传播策略搭建", "text": "深度参与大型商业合作全链路，统筹策划案撰写与品牌宣传，策划To B团建项目、To G合作等。" },
+              { "label": "活动落地及复盘", "text": "推动活动落地、人员统筹与流程复盘，优化运营模式，项目获虹口区创业支持。" }
+            ]
+          },
+          {
+            "time": "2020.02 – 至今",
+            "company": "东方Project同人文比赛\"幻想战闻录\"",
+            "role": "独立创作者",
+            "details": [
+              { "label": "世界观拓展与融合", "text": "在东方Project原有幻想乡体系基础上创作中长篇同人小说，构建个人风格衍生世界观，深度融入现代哲学与神话元素。" },
+              { "label": "原创角色全流程塑造", "text": "独立完成主角及配角设定架构，涵盖背景故事、性格动机、能力体系与人物弧光。" },
+              { "label": "社群反响", "text": "作品获1次冠军、2次第六名，以\"薄汐鹿\"笔名发表于同人平台\"炎上书屋\"。" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sec-campus",
+        "label": "校园经历",
+        "cards": [
+          {
+            "time": "2024.09 – 至今",
+            "company": "复旦大学融媒体中心",
+            "role": "文字、小红书、美术编辑",
+            "details": [
+              { "label": "内容运营", "text": "负责校官方小红书账号体系化运营，通过热点追踪、数据分析及校园话题挖掘精准匹配用户兴趣，单篇笔记互动量最高突破3500+。" },
+              { "label": "爆款策划", "text": "负责公众号多篇重量级推文（120周年校庆、国庆、高考）的策划、撰稿与设计，打造多篇阅读量10W+爆款。" },
+              { "label": "项目统筹", "text": "协同美术、视频、文字等多组别资源，完成复杂选题从创意到落地的全流程推进。" }
+            ]
+          },
+          {
+            "time": "2024.09 – 至今",
+            "company": "复旦大学校军训宣传组（免训，全校仅选拔9人）",
+            "role": "组长",
+            "details": [
+              { "label": "统筹管理", "text": "负责宣传组全周期工作规划，制定内容排期、任务分工与质量审核机制。" },
+              { "label": "跨团队协作", "text": "协调指导老师、各专业学员与宣传组成员多方需求，推送总阅读量突破5w+。" }
+            ]
+          },
+          {
+            "time": "2025.09 – 至今",
+            "company": "复旦大学城市定向社",
+            "role": "游戏策划、文创设计组组长",
+            "details": [
+              { "label": "大型线下解密冒险活动策划", "text": "策划面向上海高校及市民的\"城市定向\"活动，设计剧情动线、谜题关卡与现场互动，参与人数1000+，营收2w+。" },
+              { "label": "社团品牌化运营", "text": "运营社团小红书账号，统筹互动宣发提升曝光，运营期间涨粉200+，笔记平均互动提升30%。" }
+            ]
+          },
+          {
+            "time": "2025.03 – 2025.12",
+            "company": "复旦大学团委学生艺术团",
+            "role": "影音制作中心成员",
+            "details": [
+              { "label": "创意执行", "text": "参与校庆主题MV制作，负责分镜脚本设计与视觉叙事构建，将音乐情感转化为画面语言。" },
+              { "label": "后期支持", "text": "协助完成视频剪辑与特效处理，助力项目在校园平台发布并获得广泛传播。" }
+            ]
+          }
+        ]
+      }
+    ]
+  },
   "xiaohongshu": {
     "author": "复旦大学",
     "posts": [
-      {
-        "id": 1,
-        "title": "NǐHǎo ，我是小红书本地人复旦大学",
-        "likes": 433,
-        "link": "https://www.xiaohongshu.com/discovery/item/67892ce80000000021003d24?source=webshare&xhsshare=pc_web&xsec_token=ABy0YsE4r58tjUqB7NY20FUDaLAMxHX6QyJOncJwhgRnw=&xsec_source=pc_share"
-      },
-      {
-        "id": 2,
-        "title": "🙀听说复旦人的期末季将近，怎么办？",
-        "likes": 1346,
-        "link": "https://www.xiaohongshu.com/discovery/item/6746aac5000000000601501d?source=webshare&xhsshare=pc_web&xsec_token=AB25ym7yYJdFjZMSqHl0Cq717hq8KaciId6F-8nFc7-jw=&xsec_source=pc_share"
-      },
-      {
-        "id": 3,
-        "title": "征集｜2025你在复旦收到的好消息！",
-        "likes": 150,
-        "link": "https://www.xiaohongshu.com/discovery/item/694291e9000000000d03c3a3?source=webshare&xhsshare=pc_web&xsec_token=AB0paKXAKzYsL9SpNyxdCuE2rcoG3hon5xmpO8u3lkIBg=&xsec_source=pc_share"
-      },
-      {
-        "id": 4,
-        "title": "当我换个方式打开复旦",
-        "likes": 837,
-        "link": "https://www.xiaohongshu.com/discovery/item/69dcb33d000000001a027f9f?source=webshare&xhsshare=pc_web&xsec_token=ABc2xu-RHg6pRP-cT0CvxqBpoZr9ksnEWsy6H47ImDtBw=&xsec_source=pc_share"
-      },
-      {
-        "id": 5,
-        "title": "注意看‼️99%人都想不到…",
-        "likes": 611,
-        "link": "https://www.xiaohongshu.com/discovery/item/6a06e0340000000035039d60?source=webshare&xhsshare=pc_web&xsec_token=ABGat5icAqlMHcXkDR8I2VWwTvvKX5mnvIB_Og-1xai9g=&xsec_source=pc_share"
-      },
-      {
-        "id": 6,
-        "title": "青青草原的小羊也有在复旦好好长大！",
-        "likes": 962,
-        "link": "https://www.xiaohongshu.com/discovery/item/68d28b1f000000001301e5e4?source=webshare&xhsshare=pc_web&xsec_token=ABGliBZ2A0sRxKuMz8QzNYKd2tRkYtC7aMl3YVMzjKhLk=&xsec_source=pc_share"
-      },
-      {
-        "id": 7,
-        "title": "这条路，就只管大胆往前走！✨",
-        "likes": 568,
-        "link": "https://www.xiaohongshu.com/discovery/item/693fb091000000001b0232ea?source=webshare&xhsshare=pc_web&xsec_token=AB9k9_ahkZRNdSshO8EI9VbAX6cbY7TLHi2sLDeplSg3Y=&xsec_source=pc_share"
-      },
-      {
-        "id": 8,
-        "title": "💌请查收复旦的一千零一个故事",
-        "likes": 85,
-        "link": "https://www.xiaohongshu.com/discovery/item/682afdd6000000000c03bf35?source=webshare&xhsshare=pc_web&xsec_token=AByviIc9TNpmUG-eFCTfE9NjRh2g1CpoHLhLyChPl_E1Q=&xsec_source=pc_share"
-      },
-      {
-        "id": 9,
-        "title": "高考加油！复旦愿你落笔生花，圆梦今夏",
-        "likes": 495,
-        "link": "https://www.xiaohongshu.com/discovery/item/6a24c5f1000000001702805f?source=webshare&xhsshare=pc_web&xsec_token=AB0kU6mpovtNWSV6PPuqzhaToz1cV7lMgguJl9rPntiiA=&xsec_source=pc_share"
-      },
-      {
-        "id": 10,
-        "title": "所有复旦人，动手❗️",
-        "likes": 863,
-        "link": "https://www.xiaohongshu.com/discovery/item/69337b3b000000001b0309b9?source=webshare&xhsshare=pc_web&xsec_token=ABfxLbtM_zPY50nn_H9FuPcynD3SRzouLCPoYUN1UPN9M=&xsec_source=pc_share"
-      },
-      {
-        "id": 12,
-        "title": "🍂风起时 整个复旦都在为你写诗✨",
-        "link": "https://www.xiaohongshu.com/discovery/item/6909da59000000000302c3c9?source=webshare&xhsshare=pc_web&xsec_token=AB02pLSF6PbZWM1O371FB7Unl1c4Y2PEG-KqO5awcI0dM=&xsec_source=pc_share"
-      },
-      {
-        "id": 13,
-        "title": "期中加油！把复旦地标的祝福揣进书包💯",
-        "link": "https://www.xiaohongshu.com/discovery/item/68fca6cf0000000003020f26?source=webshare&xhsshare=pc_web&xsec_token=ABwsJGQxpHMDYR2wkCe2IeA7EJGibfzCw3teuTEWu3Lbo=&xsec_source=pc_share"
-      },
-      {
-        "id": 14,
-        "title": "所有刷到这个视频的人，“一战成功”❗️",
-        "link": "https://www.xiaohongshu.com/discovery/item/69e5f92d000000001a0257f7?source=webshare&xhsshare=pc_web&xsec_token=ABTkNeZBZD__bjMkB6h7WLhqBWhl5i8l_hXAsTqeyCDyg=&xsec_source=pc_share"
-      },
-      {
-        "id": 15,
-        "title": "人，跟着猫来体验复旦大学的一天吧👉🏻",
-        "link": "https://www.xiaohongshu.com/discovery/item/6914165d00000000030122f6?source=webshare&xhsshare=pc_web&xsec_token=ABFeOX6v2c-V03yPyLsP4u3H3HwGPjIXfMfMfnLpXgBDs=&xsec_source=pc_share"
-      },
-      {
-        "id": 16,
-        "title": "无水军❗从夯到拉锐评复旦的猫（人类版😼",
-        "link": "https://www.xiaohongshu.com/discovery/item/693be7a1000000001e00377c?source=webshare&xhsshare=pc_web&xsec_token=ABVUMUM-HbZs62L6a1tuLvsXTlqmGoi6UggksS5LFibPM=&xsec_source=pc_share"
-      }
+      { "id": 1, "title": "NǐHǎo ，我是小红书本地人复旦大学", "likes": 433, "link": "https://www.xiaohongshu.com/discovery/item/67892ce80000000021003d24?source=webshare&xhsshare=pc_web&xsec_token=ABy0YsE4r58tjUqB7NY20FUDaLAMxHX6QyJOncJwhgRnw=&xsec_source=pc_share", "imageUrl": "" },
+      { "id": 2, "title": "🙀听说复旦人的期末季将近，怎么办？", "likes": 1346, "link": "https://www.xiaohongshu.com/discovery/item/6746aac5000000000601501d?source=webshare&xhsshare=pc_web&xsec_token=AB25ym7yYJdFjZMSqHl0Cq717hq8KaciId6F-8nFc7-jw=&xsec_source=pc_share", "imageUrl": "" },
+      { "id": 3, "title": "征集｜2025你在复旦收到的好消息！", "likes": 150, "link": "https://www.xiaohongshu.com/discovery/item/694291e9000000000d03c3a3?source=webshare&xhsshare=pc_web&xsec_token=AB0paKXAKzYsL9SpNyxdCuE2rcoG3hon5xmpO8u3lkIBg=&xsec_source=pc_share", "imageUrl": "" },
+      { "id": 4, "title": "当我换个方式打开复旦", "likes": 837, "link": "https://www.xiaohongshu.com/discovery/item/69dcb33d000000001a027f9f?source=webshare&xhsshare=pc_web&xsec_token=ABc2xu-RHg6pRP-cT0CvxqBpoZr9ksnEWsy6H47ImDtBw=&xsec_source=pc_share", "imageUrl": "" },
+      { "id": 5, "title": "注意看‼️99%人都想不到…", "likes": 611, "link": "https://www.xiaohongshu.com/discovery/item/6a06e0340000000035039d60?source=webshare&xhsshare=pc_web&xsec_token=ABGat5icAqlMHcXkDR8I2VWwTvvKX5mnvIB_Og-1xai9g=&xsec_source=pc_share", "imageUrl": "" },
+      { "id": 6, "title": "青青草原的小羊也有在复旦好好长大！", "likes": 962, "link": "https://www.xiaohongshu.com/discovery/item/68d28b1f000000001301e5e4?source=webshare&xhsshare=pc_web&xsec_token=ABGliBZ2A0sRxKuMz8QzNYKd2tRkYtC7aMl3YVMzjKhLk=&xsec_source=pc_share", "imageUrl": "" },
+      { "id": 7, "title": "这条路，就只管大胆往前走！✨", "likes": 568, "link": "https://www.xiaohongshu.com/discovery/item/693fb091000000001b0232ea?source=webshare&xhsshare=pc_web&xsec_token=AB9k9_ahkZRNdSshO8EI9VbAX6cbY7TLHi2sLDeplSg3Y=&xsec_source=pc_share", "imageUrl": "" },
+      { "id": 8, "title": "💌请查收复旦的一千零一个故事", "likes": 85, "link": "https://www.xiaohongshu.com/discovery/item/682afdd6000000000c03bf35?source=webshare&xhsshare=pc_web&xsec_token=AByviIc9TNpmUG-eFCTfE9NjRh2g1CpoHLhLyChPl_E1Q=&xsec_source=pc_share", "imageUrl": "" },
+      { "id": 9, "title": "高考加油！复旦愿你落笔生花，圆梦今夏", "likes": 495, "link": "https://www.xiaohongshu.com/discovery/item/6a24c5f1000000001702805f?source=webshare&xhsshare=pc_web&xsec_token=AB0kU6mpovtNWSV6PPuqzhaToz1cV7lMgguJl9rPntiiA=&xsec_source=pc_share", "imageUrl": "" },
+      { "id": 10, "title": "所有复旦人，动手❗️", "likes": 863, "link": "https://www.xiaohongshu.com/discovery/item/69337b3b000000001b0309b9?source=webshare&xhsshare=pc_web&xsec_token=ABfxLbtM_zPY50nn_H9FuPcynD3SRzouLCPoYUN1UPN9M=&xsec_source=pc_share", "imageUrl": "" },
+      { "id": 12, "title": "🍂风起时 整个复旦都在为你写诗✨", "likes": null, "link": "https://www.xiaohongshu.com/discovery/item/6909da59000000000302c3c9?source=webshare&xhsshare=pc_web&xsec_token=AB02pLSF6PbZWM1O371FB7Unl1c4Y2PEG-KqO5awcI0dM=&xsec_source=pc_share", "imageUrl": "" },
+      { "id": 13, "title": "期中加油！把复旦地标的祝福揣进书包💯", "likes": null, "link": "https://www.xiaohongshu.com/discovery/item/68fca6cf0000000003020f26?source=webshare&xhsshare=pc_web&xsec_token=ABwsJGQxpHMDYR2wkCe2IeA7EJGibfzCw3teuTEWu3Lbo=&xsec_source=pc_share", "imageUrl": "" },
+      { "id": 14, "title": "所有刷到这个视频的人，“一战成功”❗️", "likes": null, "link": "https://www.xiaohongshu.com/discovery/item/69e5f92d000000001a0257f7?source=webshare&xhsshare=pc_web&xsec_token=ABTkNeZBZD__bjMkB6h7WLhqBWhl5i8l_hXAsTqeyCDyg=&xsec_source=pc_share", "imageUrl": "" },
+      { "id": 15, "title": "人，跟着猫来体验复旦大学的一天吧👉🏻", "likes": null, "link": "https://www.xiaohongshu.com/discovery/item/6914165d00000000030122f6?source=webshare&xhsshare=pc_web&xsec_token=ABFeOX6v2c-V03yPyLsP4u3H3HwGPjIXfMfMfnLpXgBDs=&xsec_source=pc_share", "imageUrl": "" },
+      { "id": 16, "title": "无水军❗从夯到拉锐评复旦的猫（人类版😼", "likes": null, "link": "https://www.xiaohongshu.com/discovery/item/693be7a1000000001e00377c?source=webshare&xhsshare=pc_web&xsec_token=ABVUMUM-HbZs62L6a1tuLvsXTlqmGoi6UggksS5LFibPM=&xsec_source=pc_share", "imageUrl": "" }
     ]
   },
   "gongzhonghao": {
     "title": "公众号",
     "sub": "微信公众号推文，点击标题查看原文",
     "articles": [
-      {
-        "title": "零号推送｜玩家报名｜PolisSH城市定向第六季，黑白之界，弈局相融。",
-        "url": "https://mp.weixin.qq.com/s/gpZpssOwVYka4SbYRVGaIQ"
-      },
-      {
-        "title": "玩家报名｜PolisSH城市定向第五季，重踏故土，循迹明光。",
-        "url": "https://mp.weixin.qq.com/s/mziMKJ2DzUK_1lD47KFdKQ"
-      },
-      {
-        "title": "玩家报名 | PolisSH lite轻量级城市定向，#Answer From 2010",
-        "url": "https://mp.weixin.qq.com/s/Y7IyJgQeimQrcFZIw2P6Aw"
-      },
-      {
-        "title": "“旦”愿你来｜复旦大学线下招生宣讲会预告",
-        "url": "https://mp.weixin.qq.com/s/sBWP-wk-Y4CTTH3tJh-hhw"
-      },
-      {
-        "title": "“坐上”轮椅，这群复旦人重新发现上海",
-        "url": "https://mp.weixin.qq.com/s/EjNOx28EotLLBkQG0wH5nA"
-      },
-      {
-        "title": "一朵卿云拂过百廿长空！亲爱的复旦，祝你120岁生日快乐！",
-        "url": "https://mp.weixin.qq.com/s/BUDcPA6dHAUQ_gHUZ-OXjg"
-      },
-      {
-        "title": "复旦“小叶子”，已就位！全名单出炉",
-        "url": "https://mp.weixin.qq.com/s/U4qLGCAkRFMOK_aH4VFvKg"
-      },
-      {
-        "title": "今天，复旦人用热爱告白！",
-        "url": "https://mp.weixin.qq.com/s/5VvZuz6O37aRq2r1SyWdJw"
-      },
-      {
-        "title": "今天，点赞她们！表彰全名单来了",
-        "url": "https://mp.weixin.qq.com/s/B8YZZxpEHSfxAxZgD_7uqQ"
-      },
-      {
-        "title": "50000000步！这群复旦人，有点爱“瞎逛”",
-        "url": "https://mp.weixin.qq.com/s/lzNKB_R3y7H3D-f0HZFOwg"
-      },
-      {
-        "title": "热热热，夏天这样吃才清凉！是复旦“食力”没错了",
-        "url": "https://mp.weixin.qq.com/s/A0LcDmgI4dxIZLvDuAecdA"
-      },
-      {
-        "title": "在复旦，“粽”享美味~",
-        "url": "https://mp.weixin.qq.com/s/3tfWoifu4Txs29j_0EqvPQ"
-      },
-      {
-        "title": "寻人！亮出120个选复旦的理由，你就是大片主角",
-        "url": "https://mp.weixin.qq.com/s/kj03TwDstDxHdQimB0jr5A"
-      },
-      {
-        "title": "这一刻，笔尖有光！复旦等你，顶峰相见",
-        "url": "https://mp.weixin.qq.com/s/hejGQNvQ9YorSsjqvlNllg"
-      },
-      {
-        "title": "全球复旦人的“集体生日”！百廿校庆倒计时100天",
-        "url": "https://mp.weixin.qq.com/s/iPS_IoXrNltVEwJcGFeV3Q"
-      },
-      {
-        "title": "这个秋季学期，他们把课堂搬到了全世界",
-        "url": "https://mp.weixin.qq.com/s/UvfQ7HkUa9p9zb39Way_mw"
-      },
-      {
-        "title": "暑假，复旦人在全球上课！",
-        "url": "https://mp.weixin.qq.com/s/T8RGlfQU1ieTy3Ors8UNQ"
-      },
-      {
-        "title": "正月初三，福气翻番！红包封面限时返场，笃志前行一马当先",
-        "url": "https://mp.weixin.qq.com/s/GTfB0XRfuh4wWV_q8X9J9w"
-      },
-      {
-        "title": "好消息！好消息！",
-        "url": "https://mp.weixin.qq.com/s/Xj3wVqYSJ1nY7tc2lh0zqg"
-      }
+      { "title": "零号推送｜玩家报名｜PolisSH城市定向第六季，黑白之界，弈局相融。", "url": "https://mp.weixin.qq.com/s/gpZpssOwVYka4SbYRVGaIQ" },
+      { "title": "玩家报名｜PolisSH城市定向第五季，重踏故土，循迹明光。", "url": "https://mp.weixin.qq.com/s/mziMKJ2DzUK_1lD47KFdKQ" },
+      { "title": "玩家报名 | PolisSH lite轻量级城市定向，#Answer From 2010", "url": "https://mp.weixin.qq.com/s/Y7IyJgQeimQrcFZIw2P6Aw" },
+      { "title": "\"旦\"愿你来｜复旦大学线下招生宣讲会预告", "url": "https://mp.weixin.qq.com/s/sBWP-wk-Y4CTTH3tJh-hhw" },
+      { "title": "\"坐上\"轮椅，这群复旦人重新发现上海", "url": "https://mp.weixin.qq.com/s/EjNOx28EotLLBkQG0wH5nA" },
+      { "title": "一朵卿云拂过百廿长空！亲爱的复旦，祝你120岁生日快乐！", "url": "https://mp.weixin.qq.com/s/BUDcPA6dHAUQ_gHUZ-OXjg" },
+      { "title": "复旦\"小叶子\"，已就位！全名单出炉", "url": "https://mp.weixin.qq.com/s/U4qLGCAkRFMOK_aH4VFvKg" },
+      { "title": "今天，复旦人用热爱告白！", "url": "https://mp.weixin.qq.com/s/5VvZuz6O37aRq2r1SyWdJw" },
+      { "title": "今天，点赞她们！表彰全名单来了", "url": "https://mp.weixin.qq.com/s/B8YZZxpEHSfxAxZgD_7uqQ" },
+      { "title": "50000000步！这群复旦人，有点爱\"瞎逛\"", "url": "https://mp.weixin.qq.com/s/lzNKB_R3y7H3D-f0HZFOwg" },
+      { "title": "热热热，夏天这样吃才清凉！是复旦\"食力\"没错了", "url": "https://mp.weixin.qq.com/s/A0LcDmgI4dxIZLvDuAecdA" },
+      { "title": "在复旦，\"粽\"享美味~", "url": "https://mp.weixin.qq.com/s/3tfWoifu4Txs29j_0EqvPQ" },
+      { "title": "寻人！亮出120个选复旦的理由，你就是大片主角", "url": "https://mp.weixin.qq.com/s/kj03TwDstDxHdQimB0jr5A" },
+      { "title": "这一刻，笔尖有光！复旦等你，顶峰相见", "url": "https://mp.weixin.qq.com/s/hejGQNvQ9YorSsjqvlNllg" },
+      { "title": "全球复旦人的\"集体生日\"！百廿校庆倒计时100天", "url": "https://mp.weixin.qq.com/s/iPS_IoXrNltVEwJcGFeV3Q" },
+      { "title": "这个秋季学期，他们把课堂搬到了全世界", "url": "https://mp.weixin.qq.com/s/UvfQ7HkUa9p9zb39Way_mw" },
+      { "title": "暑假，复旦人在全球上课！", "url": "https://mp.weixin.qq.com/s/T8RGlfQU1ieTy3Ors8UNQ" },
+      { "title": "正月初三，福气翻番！红包封面限时返场，笃志前行一马当先", "url": "https://mp.weixin.qq.com/s/GTfB0XRfuh4wWV_q8X9J9w" },
+      { "title": "好消息！好消息！", "url": "https://mp.weixin.qq.com/s/Xj3wVqYSJ1nY7tc2lh0zqg" }
     ]
   }
 }

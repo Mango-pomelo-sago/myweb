@@ -66,13 +66,12 @@ const routes = [
     name: 'AdminLogin',
     component: () => import('../views/LoginView.vue')
   },
-  // TODO: 后台管理面板待创建
-  // {
-  //   path: '/admin/dashboard',
-  //   name: 'AdminDashboard',
-  //   component: () => import('../views/AdminDashboard.vue'),
-  //   meta: { requiresAuth: true }
-  // },
+  {
+    path: '/admin/dashboard',
+    name: 'AdminDashboard',
+    component: () => import('../views/AdminDashboard.vue'),
+    meta: { requiresAuth: true }
+  },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',

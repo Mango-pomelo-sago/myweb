@@ -2,95 +2,22 @@
   <div class="home-view">
     <!-- 固定标题 -->
     <div class="fixed-title">
-      <h1>杨枝甘鹿</h1>
+      <h1>{{ profileName }}</h1>
     </div>
 
     <!-- 主要内容 -->
     <main id="smooth-content" class="scroll-text-content">
       <div class="content">
-        <div class="group">
-          <div class="el pos-4" data-alt-pos="pos-2">Shall I compare thee to a summer's day?</div>
-        </div>
-
-        <div class="group">
-          <div class="el pos-1" data-alt-pos="pos-3">Thou art more lovely and more temperate:</div>
-        </div>
-
-        <div class="group">
-          <div class="el el--xl pos-1" data-alt-pos="pos-2" data-scramble-duration="2.5">Y</div>
-        </div>
-
-        <div class="group">
-          <div class="el pos-1" data-alt-pos="pos-3" data-scramble-duration="0">鏡越し貴方と 瞳の奥の私と</div>
-          <div class="el pos-1 typing-indicator" data-alt-pos="pos-3" data-scramble-duration="0">█</div>
-        </div>
-
-        <div class="group">
-          <div class="el pos-2" data-alt-pos="pos-5">Rough winds do shake the darling buds of May,</div>
-        </div>
-
-        <div class="group">
-          <div class="el el--xl pos-3" data-alt-pos="pos-9" data-scramble-duration="2.5">Z</div>
-        </div>
-
-        <div class="group">
-          <div class="el pos-3" data-alt-pos="pos-2">And summer's lease hath all too short a date;</div>
-        </div>
-
-        <div class="group">
-          <div class="el pos-1" data-alt-pos="pos-3" data-scramble-duration="0">灰に潜り 秒針を噛み</div>
-          <div class="el pos-1 typing-indicator" data-alt-pos="pos-3" data-scramble-duration="0">█</div>
-        </div>
-
-        <div class="group">
-          <div class="el pos-2" data-alt-pos="pos-4">Sometime too hot the eye of heaven shines,</div>
-        </div>
-
-        <div class="group">
-          <div class="el el--xl pos-1" data-alt-pos="pos-3" data-scramble-duration="2.5">G</div>
-        </div>
-
-        <div class="group">
-          <div class="el pos-2" data-alt-pos="pos-9">And often is his gold complexion dimm'd;</div>
-        </div>
-
-        <div class="group">
-          <div class="el el--xl pos-3" data-alt-pos="pos-10" data-scramble-duration="2.5" data-flip-ease="expo.in">L</div>
-        </div>
-
-        <div class="group">
-          <div class="el pos-4" data-alt-pos="pos-3">And every fair from fair sometime declines,</div>
-        </div>
-
-        <div class="group">
-          <div class="el pos-1" data-alt-pos="pos-3" data-scramble-duration="0">ゴミ箱に捨てた 転生林檎</div>
-          <div class="el pos-1 typing-indicator" data-alt-pos="pos-3" data-scramble-duration="0">█</div>
-        </div>
-
-        <div class="group">
-          <div class="el pos-3" data-alt-pos="pos-5">By chance or nature's changing course untrimm'd:</div>
-        </div>
-
-        <div class="group">
-          <div class="el el--xl pos-2" data-alt-pos="pos-3" data-scramble-duration="2.5">I</div>
-        </div>
-
-        <div class="group">
-          <div class="el pos-3" data-alt-pos="pos-6">But thy eternal summer shall not fade</div>
-        </div>
-
-        <div class="group">
-          <div class="el pos-2" data-alt-pos="pos-7">Nor lose possession of that fair thou owest;</div>
-        </div>
-
-        <div class="group">
-          <div class="el pos-3" data-alt-pos="pos-8">Nor shall Death brag thou wand'rest in his shade,</div>
-          <div class="el pos-3" data-alt-pos="pos-8">When in eternal lines to time thou growest</div>
-        </div>
-
-        <div class="group">
-          <div class="el pos-1" data-alt-pos="pos-1">So long as men can breathe or eyes can see,</div>
-          <div class="el pos-1" data-alt-pos="pos-2">So long lives this, and this gives life to thee.</div>
+        <div class="group" v-for="(group, gi) in home" :key="gi">
+          <div
+            v-for="(el, ei) in group.elements"
+            :key="ei"
+            class="el"
+            :class="[el.class, { 'el--xl': el.xl, 'typing-indicator': el.typingIndicator }]"
+            :data-alt-pos="el.altPos"
+            :data-scramble-duration="el.scrambleDuration != null ? el.scrambleDuration : undefined"
+            :data-flip-ease="el.flipEase || undefined"
+          >{{ el.text }}</div>
         </div>
       </div>
     </main>
@@ -98,11 +25,16 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, nextTick, computed } from 'vue'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Flip } from 'gsap/Flip'
 import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin'
+import { siteData, loadSiteData } from '../utils/dataLoader'
+
+// 从 data.json 读取首页诗歌文字和标题
+const home = computed(() => (siteData.value && siteData.value.home) ? siteData.value.home : [])
+const profileName = computed(() => (siteData.value && siteData.value.profile && siteData.value.profile.name) ? siteData.value.profile.name : '杨枝甘鹿')
 
 // GSAP 注册插件
 gsap.registerPlugin(ScrollTrigger, Flip, ScrambleTextPlugin)
@@ -264,7 +196,13 @@ const handleGsapResize = () => {
   }, 150)
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // 加载站点数据（GitHub 优先，失败用本地）
+  await loadSiteData()
+
+  // 等 DOM 渲染完成后再初始化动画
+  await nextTick()
+
   // 初始化滚动文字动画
   initScrollTextAnimation()
 })

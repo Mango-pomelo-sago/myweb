@@ -44,19 +44,15 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import mushroomImg from '@/assets/images/11.png'
+import { siteData } from '../utils/dataLoader'
 
 const route = useRoute()
 
-const navItems = ref([
-  { path: '/', name: '首页', label: 'Home' },
-  // { path: '/about', name: '关于我', label: 'About' }, // 暂隐藏
-  { path: '/portfolio', name: '作品集', label: 'Portfolio' },
-  { path: '/work', name: '我的工作', label: 'Work' },
-  { path: '/contact', name: '联系我', label: 'Contact' }
-])
+// 导航项从 data.json 读取，可后台修改
+const navItems = computed(() => (siteData.value && siteData.value.nav) ? siteData.value.nav : [])
 
 // 移动端汉堡菜单
 const mobileMenuOpen = ref(false)

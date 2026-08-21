@@ -13,29 +13,29 @@
       <div class="contact-info">
         <div class="contact-item">
           <span class="label">邮箱</span>
-          <a :href="'mailto:' + data.profile.contact.email" class="value">
-            {{ data.profile.contact.email }}
+          <a :href="'mailto:' + data.value.profile.contact.email" class="value">
+            {{ data.value.profile.contact.email }}
           </a>
         </div>
         
         <div class="contact-item">
           <span class="label">GitHub</span>
-          <a :href="data.profile.contact.github" target="_blank" class="value">
-            {{ data.profile.contact.githubName }}
+          <a :href="data.value.profile.contact.github" target="_blank" class="value">
+            {{ data.value.profile.contact.githubName }}
           </a>
         </div>
         
         <div class="contact-item">
           <span class="label">抖音</span>
-          <a :href="data.profile.contact.douyin" target="_blank" class="value">
-            {{ data.profile.contact.douyinName }}
+          <a :href="data.value.profile.contact.douyin" target="_blank" class="value">
+            {{ data.value.profile.contact.douyinName }}
           </a>
         </div>
 
         <div class="contact-item">
           <span class="label">小红书</span>
-          <a :href="data.profile.contact.xiaohongshu" target="_blank" class="value">
-            {{ data.profile.contact.xiaohongshuName }}
+          <a :href="data.value.profile.contact.xiaohongshu" target="_blank" class="value">
+            {{ data.value.profile.contact.xiaohongshuName }}
           </a>
         </div>
       </div>
@@ -52,9 +52,11 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import data from '../../data.json'
+import { siteData, loadSiteData } from '../utils/dataLoader'
 import landscapeImg from '@/assets/images/landscape.png'
 import LetterPlay from '../components/LetterPlay.vue'
+
+const data = siteData
 
 const canvasRef = ref(null)
 
@@ -281,6 +283,7 @@ function handleResize() {
 }
 
 onMounted(() => {
+  loadSiteData()
   canvas = canvasRef.value
   if (!canvas) return
   

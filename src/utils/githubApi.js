@@ -1,14 +1,16 @@
 import axios from 'axios'
 
-// GitHub 配置 - 使用时需要替换为你的实际信息
-const GITHUB_OWNER = import.meta.env.VITE_GITHUB_OWNER || 'YOUR_GITHUB_USERNAME'
-const GITHUB_REPO = import.meta.env.VITE_GITHUB_REPO || 'nyc-subway-portfolio'
+// GitHub 配置 - 从环境变量读取，支持运行时通过 localStorage 覆盖
+const GITHUB_OWNER = import.meta.env.VITE_GITHUB_OWNER || 'Mango-pomelo-sago'
+const GITHUB_REPO = import.meta.env.VITE_GITHUB_REPO || 'myweb'
 const GITHUB_BRANCH = 'main'
 const DATA_FILE_PATH = 'data.json'
 
-const getToken = () => localStorage.getItem('github_token')
+const getToken = () => {
+  return localStorage.getItem('github_token') || import.meta.env.VITE_GITHUB_TOKEN || ''
+}
 
-// 获取数据
+// 获取数据（从 GitHub raw 读取）
 export const fetchData = async () => {
   try {
     const response = await axios.get(
@@ -37,7 +39,7 @@ export const saveData = async (newData) => {
     const sha = shaResponse.data.sha
 
     // 2. 更新文件内容
-    const content = btoa(JSON.stringify(newData, null, 2))
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(newData, null, 2))))
     await axios.put(
       `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_FILE_PATH}`,
       {
@@ -88,3 +90,5 @@ export const uploadImage = async (file, filename) => {
     reader.readAsDataURL(file)
   })
 }
+
+export { GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH }

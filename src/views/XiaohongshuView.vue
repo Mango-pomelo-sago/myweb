@@ -158,7 +158,7 @@
           <div class="section-divider"></div>
           <a
             class="douyin-card"
-            href="https://v.douyin.com/GLi6kN8N7OQ/"
+            :href="profile.contact.douyin"
             target="_blank"
             rel="noopener"
           >
@@ -176,12 +176,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import data from '../../data.json'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { siteData, loadSiteData } from '../utils/dataLoader'
 
-const profile = data.profile
+const profile = computed(() => {
+  const p = (siteData.value && siteData.value.profile) ? siteData.value.profile : {}
+  return { contact: {}, ...p }
+})
 
-// 按序号导入对应的图片
+// 按序号导入对应的图片（本地 fallback，后台可上传图片后用 imageUrl 覆盖）
 import img1 from '@/assets/images/xiaohongshu/NǐHǎo ，我是小红书本地人复旦大学_1_复旦大学_来自小红书网页版 (1).jpg'
 import img2 from '@/assets/images/xiaohongshu/🙀听说复旦人的期末季将近，怎么办？_1_复旦大学_来自小红书网页版.jpg'
 import img3 from '@/assets/images/xiaohongshu/征集｜2025你在复旦收到的好消息！_1_复旦大学_来自小红书网页版.jpg'
@@ -219,17 +222,19 @@ const images = {
   16: img16
 }
 
-const author = data.xiaohongshu.author
+const author = computed(() => (siteData.value && siteData.value.xiaohongshu && siteData.value.xiaohongshu.author) ? siteData.value.xiaohongshu.author : '复旦大学')
 
-// 将文字数据与图片一一对应
-const posts = data.xiaohongshu.posts.map((p) => ({
-  ...p,
-  image: images[p.id] || ''
-}))
+// 将文字数据与图片一一对应（后台上传的 imageUrl 优先，否则用本地导入图）
+const posts = computed(() =>
+  (siteData.value && siteData.value.xiaohongshu && siteData.value.xiaohongshu.posts ? siteData.value.xiaohongshu.posts : []).map((p) => ({
+    ...p,
+    image: p.imageUrl || images[p.id] || ''
+  }))
+)
 
 // 公众号推文
-const articles = data.gongzhonghao.articles
-const gongzhonghaoSub = data.gongzhonghao.sub
+const articles = computed(() => (siteData.value && siteData.value.gongzhonghao && siteData.value.gongzhonghao.articles) ? siteData.value.gongzhonghao.articles : [])
+const gongzhonghaoSub = computed(() => (siteData.value && siteData.value.gongzhonghao && siteData.value.gongzhonghao.sub) ? siteData.value.gongzhonghao.sub : '')
 
 // 本页左侧导航分区
 const sections = [
@@ -265,6 +270,7 @@ const onScroll = () => {
 }
 
 onMounted(() => {
+  loadSiteData()
   window.addEventListener('scroll', onScroll, { passive: true })
   onScroll()
 })
