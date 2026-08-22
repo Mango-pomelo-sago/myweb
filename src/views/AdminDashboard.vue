@@ -29,7 +29,7 @@
         {{ changingPassword ? '修改中…' : '修改密码' }}
       </button>
       <p v-if="passwordMsg" class="password-msg" :class="{ 'password-ok': passwordOk, 'password-err': !passwordOk }">{{ passwordMsg }}</p>
-      <p class="hint">密码保存在 data.json 的 <code>adminPassword</code> 字段中，修改后需保存到 GitHub 才会生效</p>
+      <p class="hint">密码由服务端环境变量管理，修改后请到 Vercel Dashboard 同步 ADMIN_PASSWORD</p>
     </section>
 
     <!-- 选项卡导航 -->
@@ -506,7 +506,7 @@
     <!-- 9. 作品集图片统一管理 -->
     <section v-if="activeTab === 'galleryImages'" class="section">
       <h2 class="section-title">作品集图片</h2>
-      <p class="hint">上传图片自动压缩（最长边≤1600、webp 0.8）；本地打包图与上传图在此统一排序、加 caption、设定宽图、移出展示。改完点「保存」，前台刷新即生效。</p>
+      <p class="hint">上传图片自动压缩（最长边≤1600、webp 0.8）；本地打包图与上传图在此统一管理：可拖拽排序、改分类、加 caption、设定宽图、移出展示。分类、说明、宽图、移出均可直接编辑，改完点「保存」，前台刷新即生效。</p>
 
       <!-- 分类子页签 -->
       <div class="sub-tabs">
@@ -555,19 +555,17 @@
           <img class="gallery-thumb" :src="entry.thumb" :alt="entry.name" />
           <div class="gallery-info">
             <div class="gallery-name" :title="entry.fullName">{{ entry.name }}<span class="gallery-tag">{{ entry.kind }}</span></div>
-            <input class="input gallery-caption-input" v-model="entry.caption" placeholder="一句话介绍（可选）" @input="markDirty('galleryImages')" />
-            <label class="gallery-wide"><input type="checkbox" v-model="entry.wide" @change="markDirty('galleryImages')" /> 跨两列显示</label>
-            <!-- 分类：upload 图可自由调整，本地图对应文件所在目录、只读 -->
+            <input class="input gallery-caption-input" v-model="entry.raw.caption" placeholder="一句话介绍（可选）" @input="markDirty('galleryImages')" />
+            <label class="gallery-wide"><input type="checkbox" v-model="entry.raw.wide" @change="markDirty('galleryImages')" /> 跨两列显示</label>
+            <!-- 分类：本地图与上传图均可自由调整，前台按条目的分类展示（本地图不移动文件） -->
             <div class="gallery-cat">
               <select
-                v-if="entry.type === 'remote'"
+                v-model="entry.raw.category"
                 class="input gallery-cat-select"
-                :value="entry.category"
-                @change="changeGalleryCategory(entry, $event.target.value)"
+                @change="changeGalleryCategory(entry)"
               >
                 <option v-for="(name, cat) in CATEGORY_NAMES" :key="cat" :value="cat">{{ name }}</option>
               </select>
-              <span v-else class="gallery-tag gallery-cat-tag" :title="'本地图片分类由文件所在目录决定，不可修改（'+entry.fullName+'）'">📁 {{ CATEGORY_NAMES[entry.category] || entry.category }}</span>
             </div>
           </div>
           <button class="btn btn-danger" @click="hideGalleryItem(uiIndex)">移出</button>
@@ -583,7 +581,15 @@
             <img class="gallery-thumb" :src="entry.thumb" :alt="entry.name" />
             <div class="gallery-info">
               <div class="gallery-name" :title="entry.fullName">{{ entry.name }}</div>
-              <span class="gallery-tag gallery-cat-tag">📁 {{ CATEGORY_NAMES[entry.category] || entry.category }}</span>
+              <div class="gallery-cat">
+                <select
+                  v-model="entry.raw.category"
+                  class="input gallery-cat-select"
+                  @change="changeGalleryCategory(entry)"
+                >
+                  <option v-for="(name, cat) in CATEGORY_NAMES" :key="cat" :value="cat">{{ name }}</option>
+                </select>
+              </div>
             </div>
             <button class="btn btn-ghost" @click="restoreGalleryItem(hidx)">恢复</button>
           </div>
@@ -701,6 +707,7 @@ import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { siteData, loadSiteData } from '../utils/dataLoader'
 import { compressImage } from '../utils/imageCompress'
+import { listImages, uploadImage } from '../utils/githubApi'
 import { CATEGORY_GLOBS, CATEGORY_NAMES, extractFilename, imgPath } from '../utils/galleryGlob'
 
 const router = useRouter()
@@ -1238,6 +1245,7 @@ function flattenGalleryItems() {
     const key = (e.type === 'builtin' ? 'builtin:' : 'remote:') + (e.filename || e.url || i)
     return {
       ...e,
+      raw: e,        // 真实 reactive 条目引用：caption/wide/hidden/category 的就地编辑都走 raw 写回
       i,
       key,
       thumb,
@@ -1305,12 +1313,12 @@ async function uploadGalleryFiles() {
   markDirty('galleryImages')
 }
 
-// 修改条目分类（仅 remote 类型可改）
-function changeGalleryCategory(entry, newCat) {
-  if (entry.type !== 'remote') return
-  entry.category = newCat
-  const name = CATEGORY_NAMES[newCat] || newCat
-  if (galFilter.value !== 'all' && galFilter.value !== newCat) {
+// 修改条目分类：v-model 已即时写回 entry.raw.category，这里只负责过滤联动与提示
+function changeGalleryCategory(entry) {
+  const cat = entry.raw.category
+  const name = CATEGORY_NAMES[cat] || cat
+  // 分类过滤视图下改到别的分类 → 条目从当前列表消失，切回「全部」并提示
+  if (galFilter.value !== 'all' && galFilter.value !== cat) {
     galFilter.value = 'all'
     showToast(`已移至「${name}」分类，可切到对应分类查看`, 'success')
   } else {
@@ -1323,14 +1331,14 @@ function changeGalleryCategory(entry, newCat) {
 function hideGalleryItem(uiIndex) {
   const entry = galFilteredItems.value[uiIndex]
   if (!entry) return
-  entry.hidden = true
+  entry.raw.hidden = true
   markDirty('galleryImages')
 }
 // 恢复展示
 function restoreGalleryItem(hidx) {
   const entry = galHiddenItems.value[hidx]
   if (!entry) return
-  entry.hidden = false
+  entry.raw.hidden = false
   markDirty('galleryImages')
 }
 
@@ -1506,8 +1514,6 @@ watch(
 // 上传成功后也触发一次草稿保存（图片 URL 复制场景不影响）
 onMounted(async () => {
   if (await loadSiteData()) loadDataIntoEdit()
-  // —— Token 有效性检测 ——
-  checkToken()
   // —— 草稿恢复逻辑：有草稿则提示用户，选择恢复则覆盖当前编辑数据 ——
   const draft = readDraft()
   if (draft) {
@@ -1744,18 +1750,6 @@ select.input {
   font-size: 13px;
   color: #999;
   margin: 4px 0 16px;
-}
-/* Token 状态 */
-.token-status {
-  font-size: 13px;
-  font-weight: 700;
-  margin-top: 8px;
-}
-.token-ok {
-  color: #27ae60;
-}
-.token-invalid {
-  color: #e74c3c;
 }
 /* 密码修改 */
 .password-section {

@@ -53,8 +53,10 @@ const config = computed(() => categoryConfigs[props.category] || categoryConfigs
 const title = computed(() => config.value.title)
 const sub = computed(() => config.value.sub)
 
-// 从共享模块取当前分类的 glob 对象（import.meta.glob 是模块顶层静态分析，安全）
-const modules = computed(() => CATEGORY_GLOBS[props.category])
+// 从共享模块取全部三个分类的 glob 对象（import.meta.glob 是模块顶层静态分析，安全）
+// 为何要全量加载：builtin 条目的 category 可被后台自由调整（不移动文件），
+// 前台必须能跨分类找到模块，而不能只按路由分类加载
+const modules = computed(() => CATEGORY_GLOBS)
 
 // 异步加载图片
 const loadedModules = ref({})
@@ -62,12 +64,14 @@ const loadingImages = ref(true)
 
 async function loadImages() {
   loadingImages.value = true
-  const entries = Object.entries(modules.value || {})
+  // 加载全部三个分类的模块（builtin 条目可跨分类引用）
   const results = await Promise.all(
-    entries.map(async ([key, loader]) => {
-      const mod = await loader()
-      return [key, mod]
-    })
+    Object.entries(CATEGORY_GLOBS).flatMap(([cat, glob]) =>
+      Object.entries(glob).map(async ([path, loader]) => {
+        const mod = await loader()
+        return [path, mod]
+      })
+    )
   )
   loadedModules.value = Object.fromEntries(results)
   loadingImages.value = false
@@ -80,8 +84,8 @@ const ROW_UNIT = 8
 // 网格间距（与 CSS 中的 gap 保持一致）
 const GAP = 20
 
-// 各分类宽高比表
-const ratioMap = computed(() => sizes[props.category] || {})
+// 各分类宽高比表（整份 sizes：builtin 条目按自身分类取值）
+const ratioMap = computed(() => sizes)
 
 // 瀑布流容器宽度
 const waterfallEl = ref(null)
@@ -107,14 +111,15 @@ const items = computed(() => {
   const itemsList = gi && Array.isArray(gi.items) && gi.items.length > 0 ? gi.items : null
 
   if (!itemsList) {
-    const fallback = Object.entries(mods).map(([key, mod]) => {
+    // 降级：只渲染当前路由分类的本地图（mods 是全部分类，需按路由分类取）
+    const catMods = Object.entries(mods[cat] || {}).map(([key, mod]) => {
       const base = extractFilename(key)
-      const ratio = ratioMap.value[base] || 1
+      const ratio = (ratioMap.value[cat] || {})[base] || 1
       return { key: `builtin:${base}`, url: mod.default, ratio, wide: false, caption: '' }
     })
-    if (width <= 0) return fallback.map(it => ({ ...it, style: {} }))
+    if (width <= 0) return catMods.map(it => ({ ...it, style: {} }))
     const colW = (width - GAP * (cols - 1)) / cols
-    return fallback.map(it => {
+    return catMods.map(it => {
       const itemW = colW
       const itemH = itemW / it.ratio
       const rowSpan = Math.max(1, Math.ceil((itemH + GAP) / (ROW_UNIT + GAP)))
@@ -133,12 +138,13 @@ const items = computed(() => {
     let key = ''
 
     if (entry.type === 'builtin') {
-      const path = imgPath(cat, entry.filename)
-      const mod = mods[path]
-      if (!mod) continue // 跳过找不到模块的 builtin 条目（文件已删除）
+      const ecat = entry.category || cat        // 条目自身分类（后台可自由调整，不移动文件）
+      const path = imgPath(ecat, entry.filename)
+      const mod = mods[path]                     // mods = 三分类合并后的 loadedModules
+      if (!mod) continue                         // 跳过找不到模块的 builtin 条目（文件已删除）
       url = mod.default
-      ratio = ratioMap.value[entry.filename] || 1
-      key = `builtin:${entry.filename}`
+      ratio = (ratioMap.value[ecat] || {})[entry.filename] || 1
+      key = `builtin:${ecat}:${entry.filename}`  // 分类不同则 key 不同，v-for 唯一
     } else if (entry.type === 'remote') {
       url = entry.url
       ratio = entry.ratio || 1

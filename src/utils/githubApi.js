@@ -1,18 +1,12 @@
 import axios from 'axios'
 
-// GitHub 配置 - 从环境变量读取，支持运行时通过 localStorage 覆盖
+// GitHub 配置（仅用于拼接公开 raw URL；token 在服务端，客户端绝无凭据）
 const GITHUB_OWNER = import.meta.env.VITE_GITHUB_OWNER || 'Mango-pomelo-sago'
 const GITHUB_REPO = import.meta.env.VITE_GITHUB_REPO || 'myweb'
 const GITHUB_BRANCH = 'main'
 const DATA_FILE_PATH = 'data.json'
 
-const getToken = () => {
-  // 仅从 localStorage 读取用户输入的 Token。
-  // 注意：绝不读取环境变量（VITE_* 会在构建期被内联进公开 bundle，等于泄露凭据）。
-  return localStorage.getItem('github_token') || ''
-}
-
-// 获取数据（从 GitHub raw 读取）
+// 获取数据（从 GitHub raw 读取，公开只读）
 // 注意：raw CDN 会对 main 别名缓存旧内容（仓库更新后可能几小时仍是旧数据，导致"时好时坏"），
 // 因此 URL 始终带上版本参数绕过缓存：
 //  - 有 localStorage 版本号（后台保存后清除）→ 用该版本
@@ -23,8 +17,7 @@ export const fetchData = async () => {
   const versionParam = `?v=${version}`
   try {
     const response = await axios.get(
-      `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${DATA_FILE_PATH}${versionParam}`,
-      { headers: { 'Cache-Control': 'no-cache' } }
+      `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${DATA_FILE_PATH}${versionParam}`
     )
     return response.data
   } catch (error) {
@@ -34,45 +27,17 @@ export const fetchData = async () => {
   }
 }
 
-// 保存数据到 GitHub
+// 保存数据到 GitHub（走 /api 代理，token 在服务端）
 export const saveData = async (newData) => {
-  const token = getToken()
-  if (!token) throw new Error('未登录，请先配置 GitHub Token')
-
-  try {
-    // 1. 获取文件的最新 SHA
-    const shaResponse = await axios.get(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_FILE_PATH}`,
-      { headers: { 'Authorization': `token ${token}` } }
-    )
-    const sha = shaResponse.data.sha
-
-    // 2. 更新文件内容
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(newData, null, 2))))
-    await axios.put(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_FILE_PATH}`,
-      {
-        message: 'Update data.json via admin panel',
-        content: content,
-        sha: sha,
-        branch: GITHUB_BRANCH
-      },
-      { headers: { 'Authorization': `token ${token}` } }
-    )
-    // 数据已更新（且给版本参数换新值），清除旧版本号避免拿到 CDN 旧缓存
-    localStorage.removeItem('data_version')
-    return true
-  } catch (error) {
-    console.error('保存数据失败:', error)
-    throw error
-  }
+  const { default: api } = await import('./api')
+  await api.put('/data', newData)
+  // 数据已更新（且给版本参数换新值），清除旧版本号避免拿到 CDN 旧缓存
+  localStorage.removeItem('data_version')
+  return true
 }
 
-// 上传图片到 GitHub
+// 上传图片到 GitHub（走 /api 代理，token 在服务端）
 export const uploadImage = async (file, filename) => {
-  const token = getToken()
-  if (!token) throw new Error('未登录，请先配置 GitHub Token')
-
   // 文件类型白名单：只允许图片格式，拒绝 SVG（含脚本风险）
   const ALLOWED_EXTS = ['jpg', 'jpeg', 'png', 'webp']
   const ext = (filename.split('.').pop() || '').toLowerCase()
@@ -86,83 +51,27 @@ export const uploadImage = async (file, filename) => {
     throw new Error(`文件过大（${(file.size / 1024 / 1024).toFixed(1)}MB），最大允许 5MB`)
   }
 
-  return new Promise((resolve, reject) => {
+  // 将文件转为 base64 后 POST 给服务端（服务端随机命名，防路径遍历/特殊字符注入）
+  const base64Content = await new Promise((resolve, reject) => {
     const reader = new FileReader()
-    reader.onload = async () => {
-      try {
-        const base64Content = reader.result.split(',')[1]
-        const timestamp = Date.now()
-        const randomStr = Math.random().toString(36).substring(2, 8)
-        // 用随机文件名取代原始文件名，防止路径遍历和特殊字符注入
-        const filePath = `public/images/${timestamp}_${randomStr}.${ext}`
-
-        await axios.put(
-          `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`,
-          {
-            message: `Upload image: ${filename}`,
-            content: base64Content,
-            branch: GITHUB_BRANCH
-          },
-          { headers: { 'Authorization': `token ${token}` } }
-        )
-
-        // 返回图片的访问 URL
-        const imageUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${filePath}`
-        resolve(imageUrl)
-      } catch (error) {
-        reject(error)
-      }
+    reader.onload = () => {
+      const b64 = String(reader.result).split(',')[1]
+      resolve(b64)
     }
+    reader.onerror = () => reject(new Error('读取文件失败'))
     reader.readAsDataURL(file)
   })
+
+  const { default: api } = await import('./api')
+  const { data } = await api.post('/images', { filename, content: base64Content })
+  return data.url
 }
 
-// 列出 public/images/ 目录下的所有图片
+// 列出 public/images/ 目录下的所有图片（走 /api 代理）
 export const listImages = async () => {
-  const token = getToken()
-  if (!token) throw new Error('未登录，请先配置 GitHub Token')
-
-  try {
-    const response = await axios.get(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/public/images`,
-      { headers: { 'Authorization': `token ${token}` } }
-    )
-    // 只返回图片文件（按修改时间降序排列）
-    const imageExts = ['.jpg', '.jpeg', '.png', '.webp']
-    const images = response.data
-      .filter(f => f.type === 'file' && imageExts.some(ext => f.name.toLowerCase().endsWith(ext)))
-      .map(f => ({
-        name: f.name,
-        url: `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${f.path}`,
-        downloadUrl: f.download_url,
-        size: f.size,
-        updatedAt: new Date(f.updated_at)
-      }))
-      // 按名称降序（最新上传的在前）
-      .sort((a, b) => b.name.localeCompare(a.name))
-    return images
-  } catch (error) {
-    // 如果目录不存在（首次使用），返回空数组
-    if (error.response && error.response.status === 404) {
-      return []
-    }
-    console.error('获取图片列表失败:', error)
-    throw error
-  }
+  const { default: api } = await import('./api')
+  const { data } = await api.get('/images')
+  return data
 }
 
 export { GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH }
-
-// 验证 GitHub Token 是否有效
-export const validateToken = async () => {
-  const token = getToken()
-  if (!token) return false
-  try {
-    const response = await axios.get('https://api.github.com/user', {
-      headers: { 'Authorization': `token ${token}` }
-    })
-    return response.status === 200
-  } catch (error) {
-    return false
-  }
-}
