@@ -29,6 +29,7 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import Lenis from 'lenis'
+import DOMPurify from 'dompurify'
 import { siteData, loadSiteData } from '../utils/dataLoader'
 
 const canvasContainer = ref(null)
@@ -514,8 +515,11 @@ onMounted(async () => {
 
 // 根据 about 数据构建 4 张幻灯片
 function buildAboutSlides() {
-  const content = about.value.content || ''
-  const skills = about.value.skills || ''
+  // C档安全加固：about.content / skills 是后台可写的富文本，
+  // 会被序列化进 SVG foreignObject 重新解析（#rasterizePage）——这是当前唯一的重解析 HTML 危险点。
+  // 渲染进 hidden DOM 前先经 DOMPurify 消毒，仅保留安全 HTML（去脚本/事件/危险协议）。
+  const content = DOMPurify.sanitize(about.value.content || '', { ALLOWED_TAGS: [] })
+  const skills = DOMPurify.sanitize(about.value.skills || '', { ALLOWED_TAGS: [] })
   // 粗略按段落拆分
   const paragraphs = content.split('\n\n').filter(Boolean)
   aboutSlides.value = [

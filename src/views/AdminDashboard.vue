@@ -654,6 +654,7 @@ function scheduleDraftSave() {
 }
 
 // 序列化编辑数据（避免保存 reactive 代理本身）
+// C档安全加固：不序列化 adminPassword，防止草稿/预览泄漏密码
 function serializeEditData() {
   return {
     profile: JSON.parse(JSON.stringify(editData.profile)),
@@ -665,8 +666,7 @@ function serializeEditData() {
     xiaohongshu: JSON.parse(JSON.stringify(editData.xiaohongshu)),
     gongzhonghao: JSON.parse(JSON.stringify(editData.gongzhonghao)),
     personalXiaohongshu: JSON.parse(JSON.stringify(editData.personalXiaohongshu || {})),
-    personalDouyin: JSON.parse(JSON.stringify(editData.personalDouyin || {})),
-    adminPassword: editData.adminPassword || ''
+    personalDouyin: JSON.parse(JSON.stringify(editData.personalDouyin || {}))
   }
 }
 
@@ -1156,7 +1156,8 @@ onMounted(async () => {
     )
     if (ok) {
       if (editData.profile.contact) {
-        ;['profile', 'about', 'nav', 'home', 'work', 'projects', 'xiaohongshu', 'gongzhonghao', 'personalXiaohongshu', 'personalDouyin', 'adminPassword'].forEach(k => {
+        // C档安全加固：草稿已不含 adminPassword（见 serializeEditData），恢复时也不覆盖密码，保留当前已加载的密码
+        ;['profile', 'about', 'nav', 'home', 'work', 'projects', 'xiaohongshu', 'gongzhonghao', 'personalXiaohongshu', 'personalDouyin'].forEach(k => {
           if (draft[k] !== undefined) editData[k] = JSON.parse(JSON.stringify(draft[k]))
         })
       }

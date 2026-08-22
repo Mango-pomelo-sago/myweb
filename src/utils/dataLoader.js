@@ -9,8 +9,12 @@ const loadedRemote = ref(false)
 
 // 预览模式支持：后台编辑时点击「预览」会将编辑数据注入 sessionStorage
 // 前台页面启动时优先读取预览数据，实现"保存前看效果"
+// C档安全加固：preview_data 只在管理员会话（已登录 isAdmin）下读取。
+// 否则任何访客都能往自己浏览器塞一份 preview_data 覆盖全站内容（数据污染/骗过缓存）。
 function checkPreviewData() {
   try {
+    const isAdmin = localStorage.getItem('isAdmin')
+    if (!isAdmin) return false
     const raw = sessionStorage.getItem('preview_data')
     if (raw) {
       const parsed = JSON.parse(raw)
