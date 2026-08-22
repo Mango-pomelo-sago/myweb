@@ -888,63 +888,455 @@
   },
   "galleryImages": {
     "items": [
-      { "type": "builtin", "category": "design", "filename": "ditto3", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "design", "filename": "共同的模样 文创设计", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "design", "filename": "共同的模样 文创设计1", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "design", "filename": "共同的模样 文创设计3", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "design", "filename": "土楼的psb", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "design", "filename": "城定任务册图 cymk", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "design", "filename": "好好学习2", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "design", "filename": "山茶油", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "design", "filename": "征集｜2025你在复旦收到的好消息！_1_复旦大学_来自小红书网页版", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "design", "filename": "微信图片_202409010008511", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "design", "filename": "徽章", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "design", "filename": "气糕干", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "design", "filename": "清水鱼", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "design", "filename": "潘斯怡邮票", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "design", "filename": "热1", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "design", "filename": "茶叶", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "@杨枝甘露 (2)", "caption": "", "wide": true, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "例图2", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "全家福2", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "小恶魔", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "工匠", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "工匠png", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "微信图片_20240901000825", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "微信图片_20240901000850", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "微信图片_20260109122326_1230_417", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "微信图片_20260109122427_1231_417", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "成图", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "最牛逼的地图的psd", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "樵夫", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "樵夫png", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "歌者", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "歌者png", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "灯海报", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "猎户", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "猎户png", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "獠客", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "獠客png", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "电台封面", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "睦3", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "绣娘", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "绣娘png", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "色彩练习-山3", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "药师", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "药师png", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "莓Q版", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "paint", "filename": "醴2", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "photo", "filename": "影像-摄影 (1)", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "photo", "filename": "影像-摄影 (10)", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "photo", "filename": "影像-摄影 (2)", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "photo", "filename": "影像-摄影 (3)", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "photo", "filename": "影像-摄影 (4)", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "photo", "filename": "影像-摄影 (5)", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "photo", "filename": "影像-摄影 (6)", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "photo", "filename": "影像-摄影 (7)", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "photo", "filename": "影像-摄影 (8)", "caption": "", "wide": false, "hidden": false },
-      { "type": "builtin", "category": "photo", "filename": "影像-摄影 (9)", "caption": "", "wide": false, "hidden": false }
+      {
+        "type": "builtin",
+        "category": "design",
+        "filename": "ditto3",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "design",
+        "filename": "共同的模样 文创设计",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "design",
+        "filename": "共同的模样 文创设计1",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "design",
+        "filename": "共同的模样 文创设计3",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "design",
+        "filename": "土楼的psb",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "design",
+        "filename": "城定任务册图 cymk",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "design",
+        "filename": "好好学习2",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "design",
+        "filename": "山茶油",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "design",
+        "filename": "征集｜2025你在复旦收到的好消息！_1_复旦大学_来自小红书网页版",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "design",
+        "filename": "微信图片_202409010008511",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "design",
+        "filename": "徽章",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "design",
+        "filename": "气糕干",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "design",
+        "filename": "清水鱼",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "design",
+        "filename": "潘斯怡邮票",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "design",
+        "filename": "热1",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "design",
+        "filename": "茶叶",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "@杨枝甘露 (2)",
+        "caption": "",
+        "wide": true,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "例图2",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "全家福2",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "小恶魔",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "工匠",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "工匠png",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "微信图片_20240901000825",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "微信图片_20240901000850",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "微信图片_20260109122326_1230_417",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "微信图片_20260109122427_1231_417",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "成图",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "最牛逼的地图的psd",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "樵夫",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "樵夫png",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "歌者",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "歌者png",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "灯海报",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "猎户",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "猎户png",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "獠客",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "獠客png",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "电台封面",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "睦3",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "绣娘",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "绣娘png",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "色彩练习-山3",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "药师",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "药师png",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "莓Q版",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "paint",
+        "filename": "醴2",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "photo",
+        "filename": "影像-摄影 (1)",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "photo",
+        "filename": "影像-摄影 (10)",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "photo",
+        "filename": "影像-摄影 (2)",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "photo",
+        "filename": "影像-摄影 (3)",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "photo",
+        "filename": "影像-摄影 (4)",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "photo",
+        "filename": "影像-摄影 (5)",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "photo",
+        "filename": "影像-摄影 (6)",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "photo",
+        "filename": "影像-摄影 (7)",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "photo",
+        "filename": "影像-摄影 (8)",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "builtin",
+        "category": "photo",
+        "filename": "影像-摄影 (9)",
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      }
     ]
   },
-  "adminPassword": "6pGM3__YEEgPbwJJ"
+  "adminPassword": "20060204myweb"
 }
