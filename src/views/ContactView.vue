@@ -53,7 +53,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { siteData, loadSiteData } from '../utils/dataLoader'
-import landscapeImg from '@/assets/images/landscape.png'
+import landscapeImg from '@/assets/images/landscape.webp'
 import LetterPlay from '../components/LetterPlay.vue'
 
 const data = siteData

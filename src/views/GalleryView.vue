@@ -6,22 +6,34 @@
       <div class="divider"></div>
     </div>
 
-    <!-- 瀑布流：CSS Grid 网格 + 按宽高比换算行高占位，支持特宽图横跨两列 -->
-    <div class="waterfall" :style="gridStyle" ref="waterfallEl">
-      <img
-        v-for="(item, index) in items"
-        :key="item.url"
-        :src="item.url"
-        :alt="`${title}作品 ${index + 1}`"
+    <!-- 空态 -->
+    <div v-if="items.length === 0 && !loadingImages" class="empty-state">
+      <p>暂无作品</p>
+    </div>
+
+    <!-- 瀑布流 -->
+    <div v-else class="waterfall" :style="gridStyle" ref="waterfallEl">
+      <div
+        v-for="item in items"
+        :key="item.key"
+        class="gallery-item"
         :style="item.style"
-        loading="lazy"
-      />
+      >
+        <img
+          :src="item.url"
+          :alt="item.caption || `${title}作品`"
+          loading="lazy"
+        />
+        <div v-if="item.caption" class="gallery-caption">{{ item.caption }}</div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { siteData } from '@/utils/dataLoader'
+import { CATEGORY_GLOBS, imgPath, extractFilename } from '@/utils/galleryGlob'
 import sizes from '@/assets/images/webp/sizes.json'
 
 const props = defineProps({
@@ -31,45 +43,50 @@ const props = defineProps({
   }
 })
 
-// 每个分类对应一个图片文件夹，用 import.meta.glob 自动打包导入（只取图片文件）
 const categoryConfigs = {
-  design: {
-    title: '平面设计',
-    sub: '海报、品牌视觉等平面设计作品',
-    modules: import.meta.glob('@/assets/images/webp/design/*.webp', { eager: true })
-  },
-  paint: {
-    title: '绘画',
-    sub: '手绘与数字绘画作品',
-    modules: import.meta.glob('@/assets/images/webp/paint/*.webp', { eager: true })
-  },
-  photo: {
-    title: '摄影',
-    sub: '摄影作品集',
-    modules: import.meta.glob('@/assets/images/webp/photo/*.webp', { eager: true })
-  }
+  design: { title: '平面设计', sub: '海报、品牌视觉等平面设计作品' },
+  paint: { title: '绘画', sub: '手绘与数字绘画作品' },
+  photo: { title: '摄影', sub: '摄影作品集' }
 }
 
 const config = computed(() => categoryConfigs[props.category] || categoryConfigs.design)
 const title = computed(() => config.value.title)
 const sub = computed(() => config.value.sub)
 
-// 需要横跨两列展示的宽幅图（作品名，不含扩展名）
-const WIDE_NAMES = ['@杨枝甘露 (2)']
+// 从共享模块取当前分类的 glob 对象（import.meta.glob 是模块顶层静态分析，安全）
+const modules = computed(() => CATEGORY_GLOBS[props.category])
+
+// 异步加载图片
+const loadedModules = ref({})
+const loadingImages = ref(true)
+
+async function loadImages() {
+  loadingImages.value = true
+  const entries = Object.entries(modules.value || {})
+  const results = await Promise.all(
+    entries.map(async ([key, loader]) => {
+      const mod = await loader()
+      return [key, mod]
+    })
+  )
+  loadedModules.value = Object.fromEntries(results)
+  loadingImages.value = false
+}
+
+onMounted(loadImages)
 
 // 网格基础行高（与 CSS 中的 grid-auto-rows 保持一致）
 const ROW_UNIT = 8
 // 网格间距（与 CSS 中的 gap 保持一致）
 const GAP = 20
 
-// 各分类宽高比表：文件名 -> 宽/高（由 scripts/optimize_images.py 生成）
+// 各分类宽高比表
 const ratioMap = computed(() => sizes[props.category] || {})
 
-// 瀑布流容器宽度（用 ResizeObserver 跟随内容区宽度变化）
+// 瀑布流容器宽度
 const waterfallEl = ref(null)
 const containerWidth = ref(0)
 
-// 列数：沿用原来的响应式断点（基于视口宽度）
 const columnCount = computed(() => {
   const vw = typeof window !== 'undefined' ? window.innerWidth : 1200
   if (vw <= 600) return 1
@@ -78,40 +95,87 @@ const columnCount = computed(() => {
   return 4
 })
 
-// 把图片打包成带跨列/跨行信息的 items
+// 按 galleryImages.items 顺序合并渲染本地+远程图片
 const items = computed(() => {
   const cols = columnCount.value
   const width = containerWidth.value
-  if (width <= 0) {
-    return Object.entries(config.value.modules).map(([, mod]) => ({ url: mod.default, style: {} }))
+  const mods = loadedModules.value
+  const cat = props.category
+
+  // 优雅降级：无 galleryImages 或 items 为空 → 按 glob 原始顺序渲染全部本地图
+  const gi = siteData.value && siteData.value.galleryImages
+  const itemsList = gi && Array.isArray(gi.items) && gi.items.length > 0 ? gi.items : null
+
+  if (!itemsList) {
+    const fallback = Object.entries(mods).map(([key, mod]) => {
+      const base = extractFilename(key)
+      const ratio = ratioMap.value[base] || 1
+      return { key: `builtin:${base}`, url: mod.default, ratio, wide: false, caption: '' }
+    })
+    if (width <= 0) return fallback.map(it => ({ ...it, style: {} }))
+    const colW = (width - GAP * (cols - 1)) / cols
+    return fallback.map(it => {
+      const itemW = colW
+      const itemH = itemW / it.ratio
+      const rowSpan = Math.max(1, Math.ceil((itemH + GAP) / (ROW_UNIT + GAP)))
+      return { ...it, style: { gridColumn: 'span 1', gridRow: `span ${rowSpan}` } }
+    })
   }
-  const colW = (width - GAP * (cols - 1)) / cols
 
-  return Object.entries(config.value.modules).map(([key, mod]) => {
-    const url = mod.default
-    const base = key.split('/').pop().replace(/\.webp$/, '')
-    const ratio = ratioMap.value[base] || 1
+  // 按 galleryImages 顺序合并
+  const result = []
+  for (const entry of itemsList) {
+    if (entry.hidden) continue
+    if (entry.category !== cat) continue
 
-    // 特宽图横跨两列，其余每列一张
-    const colSpan = WIDE_NAMES.includes(base) ? Math.min(2, cols) : 1
+    let url = ''
+    let ratio = 1
+    let key = ''
+
+    if (entry.type === 'builtin') {
+      const path = imgPath(cat, entry.filename)
+      const mod = mods[path]
+      if (!mod) continue // 跳过找不到模块的 builtin 条目（文件已删除）
+      url = mod.default
+      ratio = ratioMap.value[entry.filename] || 1
+      key = `builtin:${entry.filename}`
+    } else if (entry.type === 'remote') {
+      url = entry.url
+      ratio = entry.ratio || 1
+      key = `remote:${entry.url}`
+    } else {
+      continue
+    }
+
+    if (width <= 0) {
+      result.push({ key, url, ratio, wide: entry.wide, caption: entry.caption || '', style: {} })
+      continue
+    }
+
+    const colW = (width - GAP * (cols - 1)) / cols
+    const colSpan = entry.wide ? Math.min(2, cols) : 1
     const itemW = colW * colSpan + GAP * (colSpan - 1)
     const itemH = itemW / ratio
-
-    // 跨行数 = 换算成整行（含行距），保证每个格子约等于图片实际宽高比
     const rowSpan = Math.max(1, Math.ceil((itemH + GAP) / (ROW_UNIT + GAP)))
 
-    return {
+    result.push({
+      key,
       url,
+      ratio,
+      wide: entry.wide,
+      caption: entry.caption || '',
       style: { gridColumn: `span ${colSpan}`, gridRow: `span ${rowSpan}` }
-    }
-  })
+    })
+  }
+
+  return result
 })
 
 const gridStyle = computed(() => ({
   gridTemplateColumns: `repeat(${columnCount.value}, 1fr)`
 }))
 
-// 监听容器宽度，随内容区宽度变化重算跨列/行数
+// 监听容器宽度
 let ro = null
 onMounted(() => {
   if (waterfallEl.value) {
@@ -156,22 +220,50 @@ onUnmounted(() => {
   background-color: var(--nyc-yellow);
 }
 
-/* 瀑布流：CSS Grid 网格，按图片宽高比预占行高，特宽图横跨两列 */
+/* 瀑布流：CSS Grid 网格，按图片宽高比预占行高 */
 .waterfall {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-auto-rows: 8px;
   grid-auto-flow: dense;
   gap: 20px;
+  overflow: hidden;
 }
 
-.waterfall img {
+.gallery-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.gallery-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
   display: block;
-  border-radius: 4px;
+}
+
+.gallery-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px 12px 10px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.55));
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  color: #999;
+  font-size: 16px;
 }
 
 @media (max-width: 480px) {

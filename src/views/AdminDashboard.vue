@@ -523,7 +523,97 @@
       </div>
     </section>
 
-    <!-- 9. 图片上传 -->
+    <!-- 9. 作品集图片统一管理 -->
+    <section v-if="activeTab === 'galleryImages'" class="section">
+      <h2 class="section-title">作品集图片</h2>
+      <p class="hint">上传图片自动压缩（最长边≤1600、webp 0.8）；本地打包图与上传图在此统一排序、加 caption、设定宽图、移出展示。改完点「保存」，前台刷新即生效。</p>
+
+      <!-- 分类子页签 -->
+      <div class="sub-tabs">
+        <button
+          v-for="f in [{ id: 'all', label: '全部' }, { id: 'design', label: '平面设计' }, { id: 'paint', label: '绘画' }, { id: 'photo', label: '摄影' }]"
+          :key="f.id"
+          class="sub-tab"
+          :class="{ active: galFilter === f.id }"
+          @click="galFilter = f.id"
+        >{{ f.label }}</button>
+        <button class="btn btn-ghost sub-tab-reset" @click="resetGalleryOrder">重置默认顺序</button>
+      </div>
+
+      <!-- 上传区 -->
+      <div class="upload-area">
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          @change="handleGalleryFileSelect"
+          ref="galleryFileInput"
+        />
+        <select v-model="galUploadCategory" class="input">
+          <option v-for="(name, cat) in CATEGORY_NAMES" :key="cat" :value="cat">{{ name }}</option>
+        </select>
+        <button class="btn btn-primary" :disabled="!gallerySelectedFiles.length || uploadingGallery" @click="uploadGalleryFiles">
+          {{ uploadingGallery ? '上传中…' : '上传到所选分类' }}
+        </button>
+        <span v-if="uploadingGallery" class="hint">大图会自动压缩，请稍候…</span>
+      </div>
+
+      <!-- 管理列表 -->
+      <div v-if="gallerySource === 'local' && !galleryLoading" class="notice">当前无远程数据（data.json 无 galleryImages），列表按本地图片清单生成，保存后固化。</div>
+      <div class="gallery-list">
+        <div
+          v-for="(entry, uiIndex) in galFilteredItems"
+          :key="entry.key"
+          class="card gallery-card"
+          :class="{ 'drag-over': dragOverUI === uiIndex && dragSource === 'gallery' }"
+          draggable="true"
+          @dragstart="onGalleryDragStart(uiIndex)"
+          @dragover.prevent="onGalleryDragOver(uiIndex)"
+          @dragleave="onGalleryDragLeave"
+          @drop.prevent="onDropGallery(uiIndex)"
+        >
+          <img class="gallery-thumb" :src="entry.thumb" :alt="entry.name" />
+          <div class="gallery-info">
+            <div class="gallery-name" :title="entry.fullName">{{ entry.name }}<span class="gallery-tag">{{ entry.kind }}</span></div>
+            <input class="input gallery-caption-input" v-model="entry.caption" placeholder="一句话介绍（可选）" @input="markDirty('galleryImages')" />
+            <label class="gallery-wide"><input type="checkbox" v-model="entry.wide" @change="markDirty('galleryImages')" /> 跨两列显示</label>
+          </div>
+          <button class="btn btn-danger" @click="hideGalleryItem(uiIndex)">移出</button>
+        </div>
+      </div>
+      <div v-if="!galFilteredItems.length" class="empty-hint">该分类暂无展示中的图片</div>
+
+      <!-- 已隐藏区 -->
+      <div v-if="galHiddenItems.length" class="hidden-section">
+        <h3 class="sub-title">已移出展示（{{ galHiddenItems.length }}）</h3>
+        <div class="hidden-list">
+          <div v-for="(entry, hidx) in galHiddenItems" :key="'h' + entry.key" class="card hidden-card">
+            <img class="gallery-thumb" :src="entry.thumb" :alt="entry.name" />
+            <div class="gallery-info">
+              <div class="gallery-name" :title="entry.fullName">{{ entry.name }}</div>
+            </div>
+            <button class="btn btn-ghost" @click="restoreGalleryItem(hidx)">恢复</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 未入作品集的上传图 -->
+      <div v-if="ungalleryImages.length" class="hidden-section">
+        <h3 class="sub-title">未加入作品集的上传图（{{ ungalleryImages.length }}）</h3>
+        <p class="hint">这些图已上传到 GitHub 但不在作品集展示列表中</p>
+        <div class="hidden-list">
+          <div v-for="(im, i) in ungalleryImages" :key="'u' + im.name" class="card hidden-card">
+            <img class="gallery-thumb" :src="im.url" :alt="im.name" />
+            <div class="gallery-info">
+              <div class="gallery-name" :title="im.name">{{ im.name }}</div>
+            </div>
+            <button class="btn btn-primary" @click="addUngalleryToItems(i)">加入作品集</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. 图片上传 -->
     <section v-if="activeTab === 'images'" class="section">
       <h2 class="section-title">图片上传</h2>
       <p class="hint">上传图片到 GitHub，上传后自动返回 URL，可复制到对应字段中使用</p>
@@ -618,6 +708,8 @@ import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { siteData, loadSiteData } from '../utils/dataLoader'
 import { saveData, uploadImage, listImages, validateToken, GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH } from '../utils/githubApi'
+import { compressImage } from '../utils/imageCompress'
+import { CATEGORY_GLOBS, CATEGORY_NAMES, extractFilename, imgPath } from '../utils/galleryGlob'
 
 const router = useRouter()
 
@@ -638,7 +730,8 @@ const editData = reactive({
   gongzhonghao: { articles: [] },
   personalXiaohongshu: {},
   personalDouyin: {},
-  adminPassword: ''
+  adminPassword: '',
+  galleryImages: { items: [] }
 })
 
 // 加载数据到编辑区
@@ -656,6 +749,7 @@ function loadDataIntoEdit() {
   editData.personalXiaohongshu = JSON.parse(JSON.stringify(src.personalXiaohongshu || { author: '', subtitle: '', imageUrl: '', link: '' }))
   editData.personalDouyin = JSON.parse(JSON.stringify(src.personalDouyin || { author: '', subtitle: '', imageUrl: '', link: '' }))
   editData.adminPassword = (src.adminPassword || '')
+  editData.galleryImages = JSON.parse(JSON.stringify(src.galleryImages || { items: [] }))
 }
 
 // ---------- 草稿：自动保存 + 恢复 ----------
@@ -684,7 +778,8 @@ function serializeEditData() {
     xiaohongshu: JSON.parse(JSON.stringify(editData.xiaohongshu)),
     gongzhonghao: JSON.parse(JSON.stringify(editData.gongzhonghao)),
     personalXiaohongshu: JSON.parse(JSON.stringify(editData.personalXiaohongshu || {})),
-    personalDouyin: JSON.parse(JSON.stringify(editData.personalDouyin || {}))
+    personalDouyin: JSON.parse(JSON.stringify(editData.personalDouyin || {})),
+    galleryImages: JSON.parse(JSON.stringify(editData.galleryImages))
   }
 }
 
@@ -826,6 +921,10 @@ watch(
   () => editData.adminPassword,
   () => markDirty('personal')
 )
+watch(
+  () => JSON.stringify(editData.galleryImages),
+  () => markDirty('galleryImages')
+)
 
 // 选项卡
 const tabs = [
@@ -838,9 +937,15 @@ const tabs = [
   { id: 'xiaohongshu', label: '小红书' },
   { id: 'gongzhonghao', label: '公众号' },
   { id: 'personal', label: '个人媒体' },
+  { id: 'galleryImages', label: '作品集图片' },
   { id: 'images', label: '图片上传' },
 ]
 const activeTab = ref('profile')
+
+// 切到「作品集图片」tab 时初始化（懒加载缩略图 + 拉取仓库图片列表）
+watch(activeTab, (tab) => {
+  if (tab === 'galleryImages') onGalleryTabEnter()
+})
 
 // 保存状态
 const saving = ref(false)
@@ -949,6 +1054,7 @@ async function handleSave() {
       gongzhonghao: editData.gongzhonghao,
       personalXiaohongshu: editData.personalXiaohongshu,
       personalDouyin: editData.personalDouyin,
+      galleryImages: editData.galleryImages,
       adminPassword: editData.adminPassword || ''
     }
     // 保存时处理 scrambleDuration 为 null 的字段
@@ -1100,6 +1206,229 @@ async function uploadFiles() {
   refreshImageList()
 }
 
+// ----- 作品集图片（galleryImages）-----
+// 分类子页签：all / design / paint / photo
+const galFilter = ref('all')
+// 上传时选中的分类
+const galUploadCategory = ref('design')
+// 上传文件
+const gallerySelectedFiles = ref([])
+const uploadingGallery = ref(false)
+const galleryFileInput = ref(null)
+// 已上传图列表缓存（用于"未加入作品集"区，避免每次切 tab 都请求）
+const galleryRepoImages = ref([])
+const gallerySource = ref('local')
+const galleryLoading = ref(false)
+const dragOverUI = ref(null)
+const dragFromUI = ref(null)
+
+// builtin 图片的懒加载 URL 缓存：filename → url
+const builtinThumbCache = ref({})
+// 非独占式：异步解析后写入缓存（不会阻塞渲染）
+async function ensureBuiltinThumb(filename) {
+  if (builtinThumbCache.value[filename]) return
+  // 在所有分类中查找该 filename（当前过滤值可能不等于它的实际分类）
+  for (const cat of ['design', 'paint', 'photo']) {
+    const path = imgPath(cat, filename)
+    const glob = CATEGORY_GLOBS[cat]
+    const loader = glob && glob[path]
+    if (loader) {
+      try {
+        const mod = await loader()
+        builtinThumbCache.value[filename] = mod.default
+        return
+      } catch (e) { /* ignore */ }
+    }
+  }
+}
+
+// 展平后的条目（带缩略图、名称、key）
+function flattenGalleryItems() {
+  const items = (editData.galleryImages && editData.galleryImages.items) || []
+  return items.map((e, i) => {
+    let thumb = ''
+    let name = ''
+    let fullName = ''
+    if (e.type === 'builtin') {
+      name = e.filename
+      fullName = e.filename
+      thumb = builtinThumbCache.value[e.filename] || ''
+      ensureBuiltinThumb(e.filename)
+    } else if (e.type === 'remote') {
+      name = (e.url || '').split('/').pop() || ''
+      fullName = e.url || ''
+      thumb = e.url || ''
+    }
+    // v-for key：builtin/remote 前缀 + 文件名/URL，保证跨类型唯一
+    const key = (e.type === 'builtin' ? 'builtin:' : 'remote:') + (e.filename || e.url || i)
+    return {
+      ...e,
+      i,
+      key,
+      thumb,
+      name,
+      fullName,
+      kind: e.type === 'builtin' ? '本地' : '上传',
+      caption: e.caption || '',
+      wide: !!e.wide,
+      hidden: !!e.hidden
+    }
+  })
+}
+
+// 展示中的条目（过滤分类 + 非 hidden）
+const galFilteredItems = computed(() => {
+  return flattenGalleryItems().filter(x => !x.hidden && (galFilter.value === 'all' || x.category === galFilter.value))
+})
+// 已隐藏条目（仅显示过滤分类下的）
+const galHiddenItems = computed(() => {
+  return flattenGalleryItems().filter(x => x.hidden && (galFilter.value === 'all' || x.category === galFilter.value))
+})
+
+// 未加入作品集的上传图：仓库 public/images 里出现但 items 里没有的 remote URL
+const ungalleryImages = computed(() => {
+  const registered = new Set((editData.galleryImages?.items || []).filter(e => e.type === 'remote').map(e => e.url))
+  return galleryRepoImages.value.filter(im => !registered.has(im.url))
+})
+
+// 选择文件
+function handleGalleryFileSelect(e) {
+  gallerySelectedFiles.value = Array.from(e.target.files || [])
+}
+
+// 上传：压缩 → 上传 GitHub → 入列表
+async function uploadGalleryFiles() {
+  const cat = galUploadCategory.value
+  const files = gallerySelectedFiles.value
+  if (!files.length) return
+  uploadingGallery.value = true
+  let ok = 0, fail = 0
+  for (const file of files) {
+    try {
+      const { blob, width, height } = await compressImage(file)
+      const url = await uploadImage(blob, Date.now() + '_' + Math.random().toString(36).slice(2) + '.webp')
+      editData.galleryImages.items.push({
+        type: 'remote',
+        category: cat,
+        url,
+        ratio: Math.round((width / height) * 10000) / 10000,
+        caption: '',
+        wide: false,
+        hidden: false
+      })
+      ok++
+    } catch (e) {
+      fail++
+      console.error('作品集上传失败:', file.name, e)
+    }
+  }
+  uploadingGallery.value = false
+  if (galleryFileInput.value) galleryFileInput.value.value = ''
+  gallerySelectedFiles.value = []
+  if (fail) showToast(`${ok} 张上传成功，${fail} 张失败`, 'error')
+  else if (ok) showToast(`${ok} 张图片已加入「${CATEGORY_NAMES[cat]}」`, 'success')
+  markDirty('galleryImages')
+}
+
+// 移出展示（hidden=true，不入库删除）
+function hideGalleryItem(uiIndex) {
+  const entry = galFilteredItems.value[uiIndex]
+  if (!entry) return
+  entry.hidden = true
+  markDirty('galleryImages')
+}
+// 恢复展示
+function restoreGalleryItem(hidx) {
+  const entry = galHiddenItems.value[hidx]
+  if (!entry) return
+  entry.hidden = false
+  markDirty('galleryImages')
+}
+
+// 拖拽（本 tab 内）：UI 索引 → 真实数组索引 映射
+function onGalleryDragStart(uiIndex) {
+  dragSource.value = 'gallery'
+  dragFromUI.value = uiIndex
+}
+function onGalleryDragOver(uiIndex) {
+  if (dragSource.value === 'gallery') dragOverUI.value = uiIndex
+}
+function onGalleryDragLeave() {
+  dragOverUI.value = null
+}
+function onDropGallery(uiIndex) {
+  if (dragSource.value !== 'gallery' || dragFromUI.value === null) return
+  const items = editData.galleryImages.items
+  const from = dragFromUI.value
+  const to = uiIndex
+  if (from === to) { dragSource.value = null; dragOverUI.value = null; dragFromUI.value = null; return }
+  const vis = galFilteredItems.value
+  const fromReal = vis[from].i
+  const toReal = vis[to].i
+  // 在真实数组中移动
+  const [moved] = items.splice(fromReal, 1)
+  items.splice(movedToIndex(items, toReal, fromReal), 0, moved)
+  dragSource.value = null
+  dragOverUI.value = null
+  dragFromUI.value = null
+  markDirty('galleryImages')
+}
+// 计算移动后的目标索引（splice 前删后插，若目标在删除点之后要减 1）
+function movedToIndex(items, toReal, fromReal) {
+  return toReal > fromReal ? toReal - 1 : toReal
+}
+
+// 重置默认顺序：用 CATEGORY_GLOBS 重新生成全部 builtin 条目，remote 条目保留
+async function resetGalleryOrder() {
+  const answer = await askConfirm('重置将重新生成全部本地图片清单（保留你上传的图片与 caption），顺序回到默认文件名排序。继续？')
+  if (!answer) return
+  const newItems = []
+  for (const [cat, glob] of Object.entries(CATEGORY_GLOBS)) {
+    const filenames = Object.keys(glob).map(extractFilename).sort((a, b) => a.localeCompare(b, 'zh'))
+    for (const filename of filenames) {
+      newItems.push({ type: 'builtin', category: cat, filename, caption: '', wide: false, hidden: false })
+    }
+  }
+  // 追加 remote 条目（保持原有 caption/wide/hidden）
+  const remote = (editData.galleryImages.items || []).filter(e => e.type === 'remote')
+  editData.galleryImages.items = [...newItems, ...remote]
+  markDirty('galleryImages')
+  showToast('已重置本地图片清单', 'success')
+}
+
+// 加入作品集（未注册的上传图 → push 到当前选中分类）
+async function addUngalleryToItems(index) {
+  const im = ungalleryImages.value[index]
+  if (!im) return
+  editData.galleryImages.items.push({
+    type: 'remote',
+    category: galUploadCategory.value,
+    url: im.url,
+    ratio: im.ratio || 1,
+    caption: '',
+    wide: false,
+    hidden: false
+  })
+  markDirty('galleryImages')
+  showToast('已加入作品集（请到分类中调整顺序）', 'success')
+}
+
+// 切到本 tab 时：懒加载 builtin 缩略图 + 拉取仓库图片列表
+function onGalleryTabEnter() {
+  if (galleryLoading.value) return
+  galleryLoading.value = true
+  // 重置来源判断
+  gallerySource.value = (editData.galleryImages && editData.galleryImages.items && editData.galleryImages.items.length) ? 'remote' : 'local'
+  // 拉取仓库图片（用于"未加入作品集"区）
+  listImages().then(list => {
+    galleryRepoImages.value = list
+  }).catch(() => {
+    galleryRepoImages.value = []
+  }).finally(() => {
+    galleryLoading.value = false
+  })
+}
+
 // 复制/填入图片 URL
 function copyText(text) {
   navigator.clipboard.writeText(text).then(() => {
@@ -1201,7 +1530,7 @@ onMounted(async () => {
     if (ok) {
       if (editData.profile.contact) {
         // C档安全加固：草稿已不含 adminPassword（见 serializeEditData），恢复时也不覆盖密码，保留当前已加载的密码
-        ;['profile', 'about', 'nav', 'home', 'work', 'projects', 'xiaohongshu', 'gongzhonghao', 'personalXiaohongshu', 'personalDouyin'].forEach(k => {
+        ;['profile', 'about', 'nav', 'home', 'work', 'projects', 'xiaohongshu', 'gongzhonghao', 'personalXiaohongshu', 'personalDouyin', 'galleryImages'].forEach(k => {
           if (draft[k] !== undefined) editData[k] = JSON.parse(JSON.stringify(draft[k]))
         })
       }
@@ -1737,5 +2066,149 @@ code {
   display: flex;
   gap: 12px;
   justify-content: center;
+}
+
+/* 作品集图片 tab */
+.sub-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.sub-tab {
+  padding: 6px 16px;
+  border: 1px solid #d0d7de;
+  border-radius: 20px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  color: #555;
+  transition: all 0.15s;
+}
+.sub-tab:hover {
+  background: #f3f4f6;
+}
+.sub-tab.active {
+  background: var(--nyc-yellow, #e8b83a);
+  color: #fff;
+  border-color: var(--nyc-yellow, #e8b83a);
+}
+.sub-tab-reset {
+  margin-left: auto;
+  font-size: 13px;
+}
+.gallery-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.gallery-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  background: #fff;
+  cursor: grab;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+.gallery-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.gallery-card.drag-over {
+  border-color: var(--nyc-yellow, #e8b83a);
+  box-shadow: 0 0 0 2px rgba(232,184,58,0.3);
+}
+.gallery-thumb {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background: #f0f0f0;
+}
+.gallery-info {
+  flex: 1;
+  min-width: 0;
+}
+.gallery-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+.gallery-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 400;
+  color: #888;
+  margin-left: 6px;
+  background: #f0f0f0;
+  padding: 0 6px;
+  border-radius: 3px;
+}
+.gallery-caption-input {
+  width: 100%;
+  max-width: 400px;
+  font-size: 13px;
+  padding: 4px 8px;
+}
+.gallery-wide {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #555;
+  margin-top: 4px;
+  cursor: pointer;
+}
+.gallery-wide input {
+  margin: 0;
+}
+.hidden-section {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px dashed #d0d7de;
+}
+.sub-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 12px;
+}
+.hidden-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hidden-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 8px;
+  border: 1px dashed #d0d7de;
+  border-radius: 6px;
+  background: #fafbfc;
+  opacity: 0.8;
+}
+.empty-hint {
+  color: #999;
+  font-size: 14px;
+  padding: 20px 0;
+  text-align: center;
+}
+.notice {
+  background: #f0f6ff;
+  border: 1px solid #b3d4ff;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 12px;
 }
 </style>

@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-图片压缩脚本：把 design / paint / photo 文件夹里的图片
-缩放到最长边不超过 MAX_DIM，并转成 WebP 输出到 webp/<分类>/ 目录。
+图片压缩脚本：
+1. design / paint / photo 文件夹的图片缩放到最长边不超过 MAX_DIM，
+   转成 WebP 输出到 webp/<分类>/ 目录（并生成 120px 模糊占位小图 + sizes.json）。
+2. xiaohongshu / othermedia 目录的图片就地产出 .webp（源图保留），
+   前端直接引用 webp 版本。
 
-同时每张图会生成一张 120px 的模糊占位小图（webp/<分类>/thumb/），
-以及一张 sizes.json（文件名 -> 宽高比），用于前端瀑布流预占位、消除加载闪跳。
-
-原图保留不动，运行后按提示用 npm run optimize:images 即可。
-新增图片后重新运行本脚本即可自动处理。
+原图保留不动，新增图片后重新运行 npm run optimize:images 即可。
 """
 import os
 import json
@@ -17,7 +16,10 @@ BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(BASE, 'src', 'assets', 'images')
 OUT = os.path.join(SRC, 'webp')
 
+# 走「webp/ 输出 + 缩略图 + sizes.json」流程的分类
 CATEGORIES = ['design', 'paint', 'photo']
+# 走「就地输出 .webp」流程的目录（前端直接引用该目录下的 webp）
+INPLACE_DIRS = ['xiaohongshu', 'othermedia']
 MAX_DIM = 1600      # 最长边像素上限（完整图）
 QUALITY = 80        # WebP 质量
 THUMB_DIM = 120     # 模糊占位小图最长边像素
@@ -102,6 +104,36 @@ def main():
                 print(f'SKIP {fname}: {e}')
 
         all_sizes[cat] = sizes
+
+    # 就地转换目录：xiaohongshu / othermedia，各自生成 .webp 副本
+    for cat in INPLACE_DIRS:
+        src_dir = os.path.join(SRC, cat)
+        if not os.path.isdir(src_dir):
+            continue
+        for fname in sorted(os.listdir(src_dir)):
+            src_path = os.path.join(src_dir, fname)
+            if not os.path.isfile(src_path):
+                continue
+            ext = os.path.splitext(fname)[1].lower()
+            if ext not in EXTS or ext == '.webp':
+                continue
+            base = os.path.splitext(fname)[0]
+            out_path = os.path.join(src_dir, base + '.webp')
+            try:
+                with Image.open(src_path) as im:
+                    im = ImageOps.exif_transpose(im)
+                    im = normalize(im)
+                    im = fit(im, MAX_DIM)
+                    im.save(out_path, 'WEBP', quality=QUALITY, method=6)
+                src_size = os.path.getsize(src_path)
+                out_size = os.path.getsize(out_path)
+                total_src += src_size
+                total_out += out_size
+                count += 1
+                print(f'{cat}/{fname}: {src_size/1e6:.1f}MB -> {out_size/1e6:.1f}MB')
+            except Exception as e:
+                skipped.append(fname)
+                print(f'SKIP {fname}: {e}')
 
     # 写出尺寸表（前端瀑布流用宽高比预占位，避免图片加载导致的排版跳动）
     with open(os.path.join(OUT, 'sizes.json'), 'w', encoding='utf-8') as f:

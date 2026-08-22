@@ -46,7 +46,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import mushroomImg from '@/assets/images/11.png'
+import mushroomImg from '@/assets/images/11.webp'
 import { siteData } from '../utils/dataLoader'
 
 const route = useRoute()

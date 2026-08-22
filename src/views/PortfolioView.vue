@@ -17,41 +17,48 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { siteData } from '../utils/dataLoader'
 import GooeySlideshow from '../components/GooeySlideshow.vue'
 import LetterPlay from '../components/LetterPlay.vue'
-import xhsCover from '@/assets/images/xiaohongshu/🙀听说复旦人的期末季将近，怎么办？_1_复旦大学_来自小红书网页版.jpg'
-import xhsHover from '@/assets/images/xiaohongshu/征集｜2025你在复旦收到的好消息！_1_复旦大学_来自小红书网页版.jpg'
+import xhsCover from '@/assets/images/xiaohongshu/🙀听说复旦人的期末季将近，怎么办？_1_复旦大学_来自小红书网页版.webp'
+import xhsHover from '@/assets/images/xiaohongshu/征集｜2025你在复旦收到的好消息！_1_复旦大学_来自小红书网页版.webp'
 
 const router = useRouter()
 
 // 可见项目(过滤掉标记为 hidden 的项目)，从 data.json 读取
 const projects = computed(() => (siteData.value && siteData.value.projects ? siteData.value.projects : []).filter((p) => !p.hidden))
 
-// 各分类封面:glob 到本分类全部大图(design/paint/photo),
-// 封面(第一张)与悬停切换图(第二张)都取分类内实际图片;
-// xiaohongshu 无 webp 目录,用显式导入的小红书截图
-// 注意:* 不跨目录,不会命中 thumb/ 子目录
-const webpGlobDesign = import.meta.glob('@/assets/images/webp/design/*.webp', { eager: true })
-const webpGlobPaint = import.meta.glob('@/assets/images/webp/paint/*.webp', { eager: true })
-const webpGlobPhoto = import.meta.glob('@/assets/images/webp/photo/*.webp', { eager: true })
-const pick = (glob, i) => Object.values(glob)[i]?.default || ''
+// 各分类封面:用懒加载 glob，只加载第一张和第二张作为封面与悬停图
+// 避免 eager:true 将所有图片打包进主 bundle（~10MB）
+const webpGlobDesign = import.meta.glob('@/assets/images/webp/design/*.webp')
+const webpGlobPaint = import.meta.glob('@/assets/images/webp/paint/*.webp')
+const webpGlobPhoto = import.meta.glob('@/assets/images/webp/photo/*.webp')
 
-// 封面:base 用各分类第一张,封面:base 相同则 hover 取第二张,否则 base<->hover 成组(封面互切)
-const covers = {
-  design: pick(webpGlobDesign, 0),
-  paint: pick(webpGlobPaint, 0),
-  photo: pick(webpGlobPhoto, 0),
-  xiaohongshu: xhsCover,
+// 封面和悬停图：用 reactive 使 computed 能响应异步加载结果
+const covers = reactive({ design: '', paint: '', photo: '', xiaohongshu: xhsCover })
+const hoverCovers = reactive({ design: '', paint: '', photo: '', xiaohongshu: xhsHover })
+
+async function loadCovers() {
+  const pairs = [
+    { key: 'design', glob: webpGlobDesign },
+    { key: 'paint', glob: webpGlobPaint },
+    { key: 'photo', glob: webpGlobPhoto },
+  ]
+  for (const { key, glob } of pairs) {
+    const entries = Object.entries(glob)
+    if (entries[0]) {
+      const mod0 = await entries[0][1]()
+      covers[key] = mod0.default
+    }
+    if (entries[1]) {
+      const mod1 = await entries[1][1]()
+      hoverCovers[key] = mod1.default
+    }
+  }
 }
-const hoverCovers = {
-  design: pick(webpGlobDesign, 1),
-  paint: pick(webpGlobPaint, 1),
-  photo: pick(webpGlobPhoto, 1),
-  xiaohongshu: xhsHover,
-}
+onMounted(loadCovers)
 
 const EN_TITLES = {
   design: 'Graphic Design',
