@@ -12,27 +12,7 @@
       </div>
     </header>
 
-    <!-- 设置区：GitHub Token -->
-    <section class="section token-section">
-      <h2 class="section-title">GitHub 配置</h2>
-      <div class="form-row">
-        <label>GitHub Token</label>
-        <input
-          type="password"
-          v-model="githubToken"
-          placeholder="输入 GitHub Fine-grained Personal Access Token"
-          class="input"
-        />
-        <button class="btn btn-sm" @click="saveToken">保存 Token</button>
-      </div>
-      <p class="hint">
-        请创建<strong>细粒度 Token</strong>（Fine-grained PAT）：仓库选择 <code>{{ GITHUB_OWNER }}/{{ GITHUB_REPO }}</code>，
-        权限只勾选 <code>Contents: Read and write</code>，过期时间设为 90 天。Token 仅保存在浏览器 localStorage，
-        切勿使用带 <code>repo</code> 全仓库权限的 Token。
-      </p>
-      <p v-if="tokenValid === true" class="token-status token-ok">✓ Token 有效</p>
-      <p v-if="tokenValid === false" class="token-status token-invalid">✗ Token 无效或已过期，请重新配置</p>
-    </section>
+    <!-- 安全设置：修改密码 -->
 
     <!-- 安全设置：修改密码 -->
     <section class="section password-section">
@@ -577,6 +557,18 @@
             <div class="gallery-name" :title="entry.fullName">{{ entry.name }}<span class="gallery-tag">{{ entry.kind }}</span></div>
             <input class="input gallery-caption-input" v-model="entry.caption" placeholder="一句话介绍（可选）" @input="markDirty('galleryImages')" />
             <label class="gallery-wide"><input type="checkbox" v-model="entry.wide" @change="markDirty('galleryImages')" /> 跨两列显示</label>
+            <!-- 分类：upload 图可自由调整，本地图对应文件所在目录、只读 -->
+            <div class="gallery-cat">
+              <select
+                v-if="entry.type === 'remote'"
+                class="input gallery-cat-select"
+                :value="entry.category"
+                @change="changeGalleryCategory(entry, $event.target.value)"
+              >
+                <option v-for="(name, cat) in CATEGORY_NAMES" :key="cat" :value="cat">{{ name }}</option>
+              </select>
+              <span v-else class="gallery-tag gallery-cat-tag" :title="'本地图片分类由文件所在目录决定，不可修改（'+entry.fullName+'）'">📁 {{ CATEGORY_NAMES[entry.category] || entry.category }}</span>
+            </div>
           </div>
           <button class="btn btn-danger" @click="hideGalleryItem(uiIndex)">移出</button>
         </div>
@@ -591,6 +583,7 @@
             <img class="gallery-thumb" :src="entry.thumb" :alt="entry.name" />
             <div class="gallery-info">
               <div class="gallery-name" :title="entry.fullName">{{ entry.name }}</div>
+              <span class="gallery-tag gallery-cat-tag">📁 {{ CATEGORY_NAMES[entry.category] || entry.category }}</span>
             </div>
             <button class="btn btn-ghost" @click="restoreGalleryItem(hidx)">恢复</button>
           </div>
@@ -707,7 +700,6 @@
 import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { siteData, loadSiteData } from '../utils/dataLoader'
-import { saveData, uploadImage, listImages, validateToken, GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH } from '../utils/githubApi'
 import { compressImage } from '../utils/imageCompress'
 import { CATEGORY_GLOBS, CATEGORY_NAMES, extractFilename, imgPath } from '../utils/galleryGlob'
 
@@ -730,7 +722,6 @@ const editData = reactive({
   gongzhonghao: { articles: [] },
   personalXiaohongshu: {},
   personalDouyin: {},
-  adminPassword: '',
   galleryImages: { items: [] }
 })
 
@@ -748,7 +739,6 @@ function loadDataIntoEdit() {
   editData.gongzhonghao = JSON.parse(JSON.stringify(src.gongzhonghao || { title: '', sub: '', articles: [] }))
   editData.personalXiaohongshu = JSON.parse(JSON.stringify(src.personalXiaohongshu || { author: '', subtitle: '', imageUrl: '', link: '' }))
   editData.personalDouyin = JSON.parse(JSON.stringify(src.personalDouyin || { author: '', subtitle: '', imageUrl: '', link: '' }))
-  editData.adminPassword = (src.adminPassword || '')
   editData.galleryImages = JSON.parse(JSON.stringify(src.galleryImages || { items: [] }))
 }
 
@@ -914,14 +904,6 @@ watch(
   () => markDirty('gongzhonghao')
 )
 watch(
-  () => JSON.stringify(editData.personalXiaohongshu) + JSON.stringify(editData.personalDouyin),
-  () => markDirty('personal')
-)
-watch(
-  () => editData.adminPassword,
-  () => markDirty('personal')
-)
-watch(
   () => JSON.stringify(editData.galleryImages),
   () => markDirty('galleryImages')
 )
@@ -950,30 +932,6 @@ watch(activeTab, (tab) => {
 // 保存状态
 const saving = ref(false)
 const saved = ref(false)
-const githubToken = ref(localStorage.getItem('github_token') || '')
-const tokenValid = ref(null) // null=未检测, true=有效, false=无效
-
-// Token 有效性检测
-async function checkToken() {
-  tokenValid.value = null
-  const token = localStorage.getItem('github_token')
-  if (!token) {
-    tokenValid.value = false
-    return
-  }
-  try {
-    const valid = await validateToken()
-    tokenValid.value = valid
-  } catch {
-    tokenValid.value = false
-  }
-}
-
-function saveToken() {
-  localStorage.setItem('github_token', githubToken.value)
-  showToast('Token 已保存到浏览器', 'success')
-  checkToken()
-}
 
 // 密码修改
 const currentPassword = ref('')
@@ -988,19 +946,31 @@ async function changePassword() {
     passwordOk.value = false
     return
   }
-  // 验证当前密码是否与 data.json 中的一致
-  const currentAdminPassword = (siteData.value && siteData.value.adminPassword) || ''
-  if (currentPassword.value !== currentAdminPassword) {
-    passwordMsg.value = '当前密码错误'
+  changingPassword.value = true
+  passwordMsg.value = ''
+  passwordOk.value = false
+  try {
+    const { default: api } = await import('../utils/api')
+    await api.post('/password', {
+      currentPassword: currentPassword.value,
+      newPassword: newPassword.value
+    })
+    passwordMsg.value = '密码已修改，旧 session cookie 已失效，请重新登录'
+    passwordOk.value = true
+    currentPassword.value = ''
+    newPassword.value = ''
+  } catch (e) {
+    const status = e.response && e.response.status
+    const msg = e.response && e.response.data && e.response.data.error
+    if (status === 401) {
+      passwordMsg.value = '当前密码错误'
+    } else {
+      passwordMsg.value = msg || '密码修改失败，请稍后再试'
+    }
     passwordOk.value = false
-    return
+  } finally {
+    changingPassword.value = false
   }
-  // 同步修改 editData 中的 adminPassword，保存时一并写入 data.json
-  editData.adminPassword = newPassword.value
-  passwordMsg.value = '密码已修改，点击「保存到 GitHub」后生效'
-  passwordOk.value = true
-  currentPassword.value = ''
-  newPassword.value = ''
 }
 
 // 保存前校验必填字段，返回第一个错误信息（null = 通过）
@@ -1055,7 +1025,6 @@ async function handleSave() {
       personalXiaohongshu: editData.personalXiaohongshu,
       personalDouyin: editData.personalDouyin,
       galleryImages: editData.galleryImages,
-      adminPassword: editData.adminPassword || ''
     }
     // 保存时处理 scrambleDuration 为 null 的字段
     // 递归处理 home 中的 null scrambleDuration
@@ -1073,7 +1042,8 @@ async function handleSave() {
     for (const post of fullData.xiaohongshu.posts) {
       if (post.likes === '' || post.likes === null) post.likes = null
     }
-    await saveData(fullData)
+    const { default: api } = await import('../utils/api')
+    await api.put('/data', fullData)
     // 保存成功后清除草稿
     clearDraft()
     // 清除所有修改标记
@@ -1087,8 +1057,13 @@ async function handleSave() {
   }
 }
 
-function handleLogout() {
-  localStorage.removeItem('isAdmin')
+async function handleLogout() {
+  try {
+    const { default: api } = await import('../utils/api')
+    await api.post('/logout')
+  } catch { /* ignore */ }
+  const { setSession } = await import('../router')
+  setSession(false)
   router.push('/admin')
 }
 
@@ -1327,6 +1302,20 @@ async function uploadGalleryFiles() {
   gallerySelectedFiles.value = []
   if (fail) showToast(`${ok} 张上传成功，${fail} 张失败`, 'error')
   else if (ok) showToast(`${ok} 张图片已加入「${CATEGORY_NAMES[cat]}」`, 'success')
+  markDirty('galleryImages')
+}
+
+// 修改条目分类（仅 remote 类型可改）
+function changeGalleryCategory(entry, newCat) {
+  if (entry.type !== 'remote') return
+  entry.category = newCat
+  const name = CATEGORY_NAMES[newCat] || newCat
+  if (galFilter.value !== 'all' && galFilter.value !== newCat) {
+    galFilter.value = 'all'
+    showToast(`已移至「${name}」分类，可切到对应分类查看`, 'success')
+  } else {
+    showToast(`已移至「${name}」分类`, 'success')
+  }
   markDirty('galleryImages')
 }
 
@@ -2169,6 +2158,18 @@ code {
 }
 .gallery-wide input {
   margin: 0;
+}
+.gallery-cat {
+  margin-top: 4px;
+}
+.gallery-cat-select {
+  font-size: 12px;
+  padding: 2px 4px;
+  max-width: 140px;
+}
+.gallery-cat-tag {
+  font-size: 12px;
+  cursor: default;
 }
 .hidden-section {
   margin-top: 24px;
