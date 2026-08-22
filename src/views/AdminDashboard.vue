@@ -592,6 +592,24 @@
         </div>
       </div>
     </div>
+
+    <!-- 通知提示（替代 alert） -->
+    <transition name="toast">
+      <div v-if="notification.show" class="toast" :class="'toast-' + notification.type">
+        {{ notification.message }}
+      </div>
+    </transition>
+
+    <!-- 确认对话框（替代 confirm） -->
+    <div v-if="confirmDialog.show" class="modal-overlay" @click.self="confirmAnswer(false)">
+      <div class="modal confirm-modal">
+        <p class="confirm-msg">{{ confirmDialog.message }}</p>
+        <div class="confirm-actions">
+          <button class="btn" @click="confirmAnswer(false)">取消</button>
+          <button class="btn btn-save" @click="confirmAnswer(true)">确定</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -848,7 +866,7 @@ async function checkToken() {
 
 function saveToken() {
   localStorage.setItem('github_token', githubToken.value)
-  alert('Token 已保存到浏览器')
+  showToast('Token 已保存到浏览器', 'success')
   checkToken()
 }
 
@@ -911,7 +929,7 @@ async function handleSave() {
   const invalid = validateData()
   if (invalid) {
     activeTab.value = invalid.tab
-    alert(invalid.msg)
+    showToast(invalid.msg, 'error')
     return
   }
 
@@ -957,7 +975,7 @@ async function handleSave() {
     saved.value = true
     setTimeout(() => { saved.value = false }, 3000)
   } catch (e) {
-    alert('保存失败：' + (e.message || e))
+    showToast('保存失败：' + (e.message || e), 'error')
   } finally {
     saving.value = false
   }
@@ -1085,7 +1103,7 @@ async function uploadFiles() {
 // 复制/填入图片 URL
 function copyText(text) {
   navigator.clipboard.writeText(text).then(() => {
-    alert('已复制到剪贴板')
+    showToast('已复制到剪贴板', 'success')
   })
 }
 
@@ -1104,7 +1122,7 @@ function openPreview() {
     const base = window.location.href.split('#')[0]
     window.open(base, '_blank')
   } catch (e) {
-    alert('预览启动失败：' + (e.message || e))
+    showToast('预览启动失败：' + (e.message || e), 'error')
   }
 }
 
@@ -1125,7 +1143,7 @@ function pickImage(url) {
   // 用 lodash 风格 setter 简化
   setByPath(editData, t, url)
   pickTarget.value = null
-  alert('已填入图片 URL')
+  showToast('已填入图片 URL', 'success')
 }
 function setByPath(obj, path, value) {
   const parts = path.split('.')
@@ -1137,13 +1155,37 @@ function setByPath(obj, path, value) {
   cur[parts[parts.length - 1]] = value
 }
 
+// ----- 页面内通知（替代原生 alert） -----
+const notification = ref({ show: false, message: '', type: 'info' })
+let notificationTimer = null
+function showToast(message, type = 'info') {
+  notification.value = { show: true, message, type }
+  clearTimeout(notificationTimer)
+  notificationTimer = setTimeout(() => {
+    notification.value.show = false
+  }, 3000)
+}
+
+// ----- 页面内确认对话框（替代原生 confirm） -----
+const confirmDialog = ref({ show: false, message: '', resolve: null })
+function askConfirm(message) {
+  return new Promise((resolve) => {
+    confirmDialog.value = { show: true, message, resolve }
+  })
+}
+function confirmAnswer(answer) {
+  const { resolve } = confirmDialog.value
+  confirmDialog.value = { show: false, message: '', resolve: null }
+  if (resolve) resolve(answer)
+}
+
 // 监听所有编辑字段的深度变化，自动安排草稿保存
 watch(
   () => JSON.stringify(editData),
   () => scheduleDraftSave()
 )
 
-// 上传图片成功后也触发一次草稿保存（图片 URL 复制场景不影响）
+// 上传成功后也触发一次草稿保存（图片 URL 复制场景不影响）
 onMounted(async () => {
   if (await loadSiteData()) loadDataIntoEdit()
   // —— Token 有效性检测 ——
@@ -1151,8 +1193,10 @@ onMounted(async () => {
   // —— 草稿恢复逻辑：有草稿则提示用户，选择恢复则覆盖当前编辑数据 ——
   const draft = readDraft()
   if (draft) {
-    const ok = confirm(
-      '检测到未保存的草稿（保存于 ' + new Date(draft.savedAt || Date.now()).toLocaleString() + '）\n是否恢复？'
+    const ok = await askConfirm(
+      '检测到未保存的草稿（保存于 ' +
+        new Date(draft.savedAt || Date.now()).toLocaleString() +
+        '），是否恢复？'
     )
     if (ok) {
       if (editData.profile.contact) {
@@ -1642,5 +1686,56 @@ code {
   .form-row {
     flex-direction: column;
   }
+}
+
+/* 通知 Toast */
+.toast {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 14px 28px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  z-index: 2000;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.toast-info {
+  background: #333;
+  color: #fff;
+}
+.toast-success {
+  background: #1a7f37;
+  color: #fff;
+}
+.toast-error {
+  background: #cf222e;
+  color: #fff;
+}
+.toast-enter-active, .toast-leave-active {
+  transition: all 0.3s ease;
+}
+.toast-enter-from, .toast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(20px);
+}
+
+/* 确认对话框 */
+.confirm-modal {
+  max-width: 420px;
+  text-align: center;
+}
+.confirm-msg {
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 8px 0 24px;
+  color: #333;
+}
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
 }
 </style>
