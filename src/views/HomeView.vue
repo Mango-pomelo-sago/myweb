@@ -3,6 +3,12 @@
     <!-- 固定标题 -->
     <div class="fixed-title">
       <h1>{{ profileName }}</h1>
+      <a
+        class="personal-manual-link"
+        href="https://ecn8b0qfd6co.feishu.cn/wiki/N5dNw3tPeiV4afkyG1kcNBxQnpf"
+        target="_blank"
+        rel="noopener noreferrer"
+      >我的个人说明书</a>
     </div>
 
     <!-- 主要内容 -->
@@ -344,6 +350,11 @@ onUnmounted(() => {
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: 200;
+  text-align: center;
+  pointer-events: none;
+}
+
+.fixed-title h1 {
   pointer-events: none;
 }
 
@@ -354,8 +365,25 @@ onUnmounted(() => {
   font-family: '思源黑体', 'Microsoft YaHei', 'SimHei', sans-serif;
   letter-spacing: 0.3em;
   line-height: 1.2;
-  margin: 0;
+  margin: 0 0 16px 0;
   white-space: nowrap;
+}
+
+.personal-manual-link {
+  display: inline-block;
+  font-size: clamp(0.85rem, 2vw, 1.1rem);
+  color: #666;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.3s, border-color 0.3s;
+  letter-spacing: 0.15em;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.personal-manual-link:hover {
+  color: var(--nyc-green, #4a7c59);
+  border-bottom-color: var(--nyc-green, #4a7c59);
 }
 
 @media (max-width: 768px) {

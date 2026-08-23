@@ -387,6 +387,7 @@ onBeforeUnmount(() => {
   height: 100%;
   list-style: none;
   padding-left: 0;
+  padding-top: 10vh;
 }
 
 .slideshow-list__el {

@@ -104,11 +104,21 @@ const REQUIRED_KEYS = ['profile', 'nav', 'projects', 'home', 'work', 'xiaohongsh
 export const loadSiteData = async (force = false) => {
   if (loadedRemote.value && !force) return siteData
 
+  // 开发模式（npm run dev）：跳过远程请求，直接使用本地 data.json，秒开
+  if (import.meta.env.DEV) {
+    loadedRemote.value = true
+    return siteData
+  }
+
   loading.value = true
   try {
     const remote = await fetchData()
     if (isUsableData(remote)) {
-      siteData.value = remote
+      // nav 始终用本地的（本地 data.json 编辑后立即生效，不会被远程覆盖）
+      siteData.value = {
+        ...remote,
+        nav: Array.isArray(localData.nav) ? localData.nav : remote.nav,
+      }
       loadedRemote.value = true
       writeCache(remote)
       return siteData

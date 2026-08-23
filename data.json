@@ -29,11 +29,6 @@
       "label": "Portfolio"
     },
     {
-      "path": "/work",
-      "name": "我的工作",
-      "label": "Work"
-    },
-    {
       "path": "/contact",
       "name": "联系我",
       "label": "Contact"
