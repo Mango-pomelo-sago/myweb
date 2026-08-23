@@ -764,6 +764,12 @@ function scheduleDraftSave() {
 
 // 序列化编辑数据（避免保存 reactive 代理本身）
 // C档安全加固：不序列化 adminPassword，防止草稿/预览泄漏密码
+// 注意：galleryImages 条目含 flattenGalleryItems 注入的 raw 自引用（raw === 自身条目），
+// 序列化时必须用 replacer 剥离，否则 JSON.stringify 抛"Converting circular structure"异常，
+// 导致监听失效 / 草稿 / 预览 / 保存全线失败（后台分类改不动的根因之一）。
+function stripRaw(k, v) {
+  return k === 'raw' ? undefined : v
+}
 function serializeEditData() {
   return {
     profile: JSON.parse(JSON.stringify(editData.profile)),
@@ -776,7 +782,7 @@ function serializeEditData() {
     gongzhonghao: JSON.parse(JSON.stringify(editData.gongzhonghao)),
     personalXiaohongshu: JSON.parse(JSON.stringify(editData.personalXiaohongshu || {})),
     personalDouyin: JSON.parse(JSON.stringify(editData.personalDouyin || {})),
-    galleryImages: JSON.parse(JSON.stringify(editData.galleryImages))
+    galleryImages: JSON.parse(JSON.stringify(editData.galleryImages, stripRaw))
   }
 }
 
@@ -911,7 +917,7 @@ watch(
   () => markDirty('gongzhonghao')
 )
 watch(
-  () => JSON.stringify(editData.galleryImages),
+  () => JSON.stringify(editData.galleryImages, stripRaw),
   () => markDirty('galleryImages')
 )
 
@@ -1031,7 +1037,7 @@ async function handleSave() {
       gongzhonghao: editData.gongzhonghao,
       personalXiaohongshu: editData.personalXiaohongshu,
       personalDouyin: editData.personalDouyin,
-      galleryImages: editData.galleryImages,
+      galleryImages: JSON.parse(JSON.stringify(editData.galleryImages, stripRaw)),
     }
     // 保存时处理 scrambleDuration 为 null 的字段
     // 递归处理 home 中的 null scrambleDuration
@@ -1506,8 +1512,9 @@ function confirmAnswer(answer) {
 }
 
 // 监听所有编辑字段的深度变化，自动安排草稿保存
+// 同上：必须用 stripRaw 剥离 raw 自引用，否则 JSON.stringify 抛循环引用异常
 watch(
-  () => JSON.stringify(editData),
+  () => JSON.stringify(editData, stripRaw),
   () => scheduleDraftSave()
 )
 
