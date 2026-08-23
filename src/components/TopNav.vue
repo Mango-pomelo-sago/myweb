@@ -52,7 +52,12 @@ import { siteData } from '../utils/dataLoader'
 const route = useRoute()
 
 // 导航项从 data.json 读取，可后台修改
-const navItems = computed(() => (siteData.value && siteData.value.nav) ? siteData.value.nav : [])
+// 硬过滤：无论导航数据来自本地打包 / 远程 GitHub / localStorage 旧缓存，
+// 都排除"我的工作"（/work）入口，确保线上导航不再出现这一栏。
+const navItems = computed(() => {
+  const items = (siteData.value && siteData.value.nav) ? siteData.value.nav : []
+  return items.filter((item) => item.path !== '/work' && item.name !== '我的工作')
+})
 
 // 移动端汉堡菜单
 const mobileMenuOpen = ref(false)
