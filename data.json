@@ -1337,5 +1337,6 @@
         "hidden": false
       }
     ]
-  }
+  },
+  "adminPassword": "请在此处设置新密码"
 }

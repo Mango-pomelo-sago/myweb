@@ -13,8 +13,6 @@
     </header>
 
     <!-- 安全设置：修改密码 -->
-
-    <!-- 安全设置：修改密码 -->
     <section class="section password-section">
       <h2 class="section-title">安全设置</h2>
       <div class="form-row">
@@ -29,7 +27,19 @@
         {{ changingPassword ? '修改中…' : '修改密码' }}
       </button>
       <p v-if="passwordMsg" class="password-msg" :class="{ 'password-ok': passwordOk, 'password-err': !passwordOk }">{{ passwordMsg }}</p>
-      <p class="hint">密码由服务端环境变量管理，修改后请到 Vercel Dashboard 同步 ADMIN_PASSWORD</p>
+      <p class="hint">密码保存在 data.json 的 <code>adminPassword</code> 字段中，修改后需保存到 GitHub 才会生效</p>
+    </section>
+
+    <!-- GitHub Token 配置 -->
+    <section class="section token-section">
+      <h2 class="section-title">GitHub Token 配置</h2>
+      <p class="hint">用于将修改保存到 GitHub 仓库，Token 仅保存在本地浏览器（localStorage），请勿泄露。</p>
+      <div class="form-row">
+        <label>GitHub Token</label>
+        <input type="password" v-model="githubToken" class="input" placeholder="输入 GitHub Personal Access Token（ghp_...）" />
+      </div>
+      <button class="btn btn-sm" @click="saveToken">保存 Token</button>
+      <p v-if="tokenMsg" class="token-msg" :class="{ 'token-ok': tokenValid, 'token-invalid': tokenValid === false }">{{ tokenMsg }}</p>
     </section>
 
     <!-- 选项卡导航 -->
@@ -707,7 +717,7 @@ import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { siteData, loadSiteData } from '../utils/dataLoader'
 import { compressImage } from '../utils/imageCompress'
-import { listImages, uploadImage } from '../utils/githubApi'
+import { saveData, uploadImage, listImages, validateToken } from '../utils/githubApi'
 import { CATEGORY_GLOBS, CATEGORY_NAMES, extractFilename, imgPath } from '../utils/galleryGlob'
 
 const router = useRouter()
@@ -729,7 +739,8 @@ const editData = reactive({
   gongzhonghao: { articles: [] },
   personalXiaohongshu: {},
   personalDouyin: {},
-  galleryImages: { items: [] }
+  galleryImages: { items: [] },
+  adminPassword: ''
 })
 
 // 加载数据到编辑区
@@ -953,6 +964,42 @@ const changingPassword = ref(false)
 const passwordMsg = ref('')
 const passwordOk = ref(false)
 
+// GitHub Token 配置
+const githubToken = ref(localStorage.getItem('github_token') || '')
+const tokenValid = ref(null)
+const tokenMsg = ref('')
+
+async function checkToken() {
+  const token = localStorage.getItem('github_token')
+  if (!token) {
+    tokenValid.value = null
+    return
+  }
+  tokenMsg.value = 'Token 检测中…'
+  try {
+    await validateToken()
+    tokenValid.value = true
+    tokenMsg.value = 'Token 有效，可正常保存'
+  } catch (e) {
+    tokenValid.value = false
+    tokenMsg.value = 'Token 无效或已过期，请更新'
+  }
+}
+
+function saveToken() {
+  const token = githubToken.value.trim()
+  if (!token) {
+    passwordMsg.value = ''
+    tokenMsg.value = '请输入 Token'
+    tokenValid.value = false
+    return
+  }
+  localStorage.setItem('github_token', token)
+  // 重新校验
+  tokenValid.value = null
+  checkToken()
+}
+
 async function changePassword() {
   if (!newPassword.value) {
     passwordMsg.value = '请输入新密码'
@@ -963,24 +1010,18 @@ async function changePassword() {
   passwordMsg.value = ''
   passwordOk.value = false
   try {
-    const { default: api } = await import('../utils/api')
-    await api.post('/password', {
-      currentPassword: currentPassword.value,
-      newPassword: newPassword.value
-    })
-    passwordMsg.value = '密码已修改，旧 session cookie 已失效，请重新登录'
+    const currentAdminPassword = (siteData.value && siteData.value.adminPassword) || ''
+    if (currentPassword.value !== currentAdminPassword) {
+      passwordMsg.value = '当前密码错误'
+      passwordOk.value = false
+      return
+    }
+    // 更新密码到编辑区（保存后写回 GitHub）
+    siteData.value.adminPassword = newPassword.value
+    passwordMsg.value = '密码已修改，保存到 GitHub 后生效'
     passwordOk.value = true
     currentPassword.value = ''
     newPassword.value = ''
-  } catch (e) {
-    const status = e.response && e.response.status
-    const msg = e.response && e.response.data && e.response.data.error
-    if (status === 401) {
-      passwordMsg.value = '当前密码错误'
-    } else {
-      passwordMsg.value = msg || '密码修改失败，请稍后再试'
-    }
-    passwordOk.value = false
   } finally {
     changingPassword.value = false
   }
@@ -1038,6 +1079,7 @@ async function handleSave() {
       personalXiaohongshu: editData.personalXiaohongshu,
       personalDouyin: editData.personalDouyin,
       galleryImages: JSON.parse(JSON.stringify(editData.galleryImages, stripRaw)),
+      adminPassword: editData.adminPassword || siteData.value.adminPassword || '',
     }
     // 保存时处理 scrambleDuration 为 null 的字段
     // 递归处理 home 中的 null scrambleDuration
@@ -1055,8 +1097,7 @@ async function handleSave() {
     for (const post of fullData.xiaohongshu.posts) {
       if (post.likes === '' || post.likes === null) post.likes = null
     }
-    const { default: api } = await import('../utils/api')
-    await api.put('/data', fullData)
+    await saveData(fullData)
     // 保存成功后清除草稿
     clearDraft()
     // 清除所有修改标记
@@ -1071,12 +1112,7 @@ async function handleSave() {
 }
 
 async function handleLogout() {
-  try {
-    const { default: api } = await import('../utils/api')
-    await api.post('/logout')
-  } catch { /* ignore */ }
-  const { setSession } = await import('../router')
-  setSession(false)
+  localStorage.removeItem('isAdmin')
   router.push('/admin')
 }
 
@@ -1521,6 +1557,8 @@ watch(
 // 上传成功后也触发一次草稿保存（图片 URL 复制场景不影响）
 onMounted(async () => {
   if (await loadSiteData()) loadDataIntoEdit()
+  // 检测 GitHub Token 状态
+  checkToken()
   // —— 草稿恢复逻辑：有草稿则提示用户，选择恢复则覆盖当前编辑数据 ——
   const draft = readDraft()
   if (draft) {
@@ -1823,6 +1861,17 @@ code {
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 24px;
+}
+
+.token-msg {
+  margin-top: 8px;
+  font-size: 13px;
+}
+.token-ok {
+  color: #16a34a;
+}
+.token-invalid {
+  color: #dc2626;
 }
 
 /* 图片上传 */

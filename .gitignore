@@ -19,6 +19,7 @@ src/assets/images/paint/
 # Chrome è°ƒè¯•ç¼“å­˜
 .chrome-dump/
 
-# ±¾µØ»·¾³±äÁ¿£¨º¬ GitHub Token µÈÃô¸ÐÐÅÏ¢£¬ÎðÌá½»£©
+# ï¿½ï¿½ï¿½Ø»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ GitHub Token ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½á½»ï¿½ï¿½
 .env
 .env.local
+.vercel

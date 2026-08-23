@@ -9,14 +9,12 @@ const loadedRemote = ref(false)
 
 // 预览模式支持：后台编辑时点击「预览」会将编辑数据注入 sessionStorage
 // 前台页面启动时优先读取预览数据，实现"保存前看效果"
-// 安全加固：preview_data 只在真实管理员会话下读取（通过 /api/session 校验），
+// C档安全加固：preview_data 只在管理员会话（已登录 isAdmin）下读取。
 // 否则任何访客都能往自己浏览器塞一份 preview_data 覆盖全站内容（数据污染/骗过缓存）。
-async function checkPreviewData() {
+function checkPreviewData() {
   try {
-    // 通过 API 校验 session cookie，而非 localStorage
-    const { default: api } = await import('./api')
-    const { data } = await api.get('/session')
-    if (!data.authenticated) return false
+    const isAdmin = localStorage.getItem('isAdmin')
+    if (!isAdmin) return false
     const raw = sessionStorage.getItem('preview_data')
     if (raw) {
       const parsed = JSON.parse(raw)
@@ -34,7 +32,7 @@ async function checkPreviewData() {
   return false
 }
 
-// 在模块加载时立即检查预览数据（异步，不阻塞首屏渲染）
+// 在模块加载时立即检查预览数据
 checkPreviewData()
 
 // 值类型校验：远程数据里数组字段必须是数组、对象字段必须是对象。
@@ -50,6 +48,7 @@ const SCHEMA = {
   about: 'object',
   personalXiaohongshu: 'object',
   personalDouyin: 'object',
+  adminPassword: 'string',
   galleryImages: 'object',
 }
 
