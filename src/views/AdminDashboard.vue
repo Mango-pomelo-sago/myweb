@@ -1439,17 +1439,34 @@ async function resetGalleryOrder() {
 async function addUngalleryToItems(index) {
   const im = ungalleryImages.value[index]
   if (!im) return
+  // 获取真实图片宽高比（默认 fallback 1）
+  let ratio = im.ratio || 1
+  if (!im.ratio) {
+    try {
+      ratio = await getImageRatio(im.url)
+    } catch { /* 兜底 1 */ }
+  }
   editData.galleryImages.items.push({
     type: 'remote',
     category: galUploadCategory.value,
     url: im.url,
-    ratio: im.ratio || 1,
+    ratio,
     caption: '',
     wide: false,
     hidden: false
   })
   markDirty('galleryImages')
   showToast('已加入作品集（请到分类中调整顺序）', 'success')
+}
+
+/** 远程加载图片，获取真实宽高比 */
+function getImageRatio(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => resolve(Math.round((img.naturalWidth / img.naturalHeight) * 10000) / 10000)
+    img.onerror = reject
+    img.src = url
+  })
 }
 
 // 切到本 tab 时：懒加载 builtin 缩略图 + 拉取仓库图片列表
