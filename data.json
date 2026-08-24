@@ -1438,6 +1438,33 @@
         "caption": "",
         "wide": false,
         "hidden": false
+      },
+      {
+        "type": "remote",
+        "category": "design",
+        "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787550981346_d6mn0o.webp",
+        "ratio": 0.1198,
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "remote",
+        "category": "design",
+        "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787550984872_6haybt.webp",
+        "ratio": 0.1504,
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "remote",
+        "category": "design",
+        "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787550987386_ilmcm7.webp",
+        "ratio": 0.1875,
+        "caption": "",
+        "wide": false,
+        "hidden": false
       }
     ]
   },
