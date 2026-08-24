@@ -1446,7 +1446,7 @@
         "ratio": 0.1198,
         "caption": "",
         "wide": false,
-        "hidden": false
+        "hidden": true
       },
       {
         "type": "remote",
@@ -1455,7 +1455,7 @@
         "ratio": 0.1504,
         "caption": "",
         "wide": false,
-        "hidden": false
+        "hidden": true
       },
       {
         "type": "remote",
@@ -1464,7 +1464,7 @@
         "ratio": 0.1875,
         "caption": "",
         "wide": false,
-        "hidden": false
+        "hidden": true
       }
     ]
   },
