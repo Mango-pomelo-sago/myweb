@@ -1335,7 +1335,7 @@
         "type": "remote",
         "category": "paint",
         "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787402846260_5board.webp",
-        "ratio": 1,
+        "ratio": 1.4995,
         "caption": "",
         "wide": false,
         "hidden": false
@@ -1344,7 +1344,7 @@
         "type": "remote",
         "category": "paint",
         "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787402843505_kcdwqa.webp",
-        "ratio": 1,
+        "ratio": 0.8259,
         "caption": "",
         "wide": false,
         "hidden": false
@@ -1353,7 +1353,7 @@
         "type": "remote",
         "category": "paint",
         "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787402840751_x84h8e.webp",
-        "ratio": 1,
+        "ratio": 1.0222,
         "caption": "",
         "wide": false,
         "hidden": false
@@ -1362,7 +1362,7 @@
         "type": "remote",
         "category": "paint",
         "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787402837940_ymbtil.webp",
-        "ratio": 1,
+        "ratio": 0.9971,
         "caption": "",
         "wide": false,
         "hidden": false
@@ -1371,7 +1371,7 @@
         "type": "remote",
         "category": "paint",
         "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787402834665_tg9fga.webp",
-        "ratio": 1,
+        "ratio": 1.1191,
         "caption": "",
         "wide": false,
         "hidden": false
@@ -1380,7 +1380,7 @@
         "type": "remote",
         "category": "design",
         "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787397978657_yjkhos.jpg",
-        "ratio": 1,
+        "ratio": 0.8096,
         "caption": "",
         "wide": false,
         "hidden": false
@@ -1389,7 +1389,7 @@
         "type": "remote",
         "category": "design",
         "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787397260772_x0adgp.png",
-        "ratio": 1,
+        "ratio": 0.4696,
         "caption": "",
         "wide": false,
         "hidden": false
@@ -1398,7 +1398,7 @@
         "type": "remote",
         "category": "design",
         "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787397255550_dj35tt.png",
-        "ratio": 1,
+        "ratio": 1.4144,
         "caption": "",
         "wide": false,
         "hidden": false
@@ -1407,7 +1407,7 @@
         "type": "remote",
         "category": "design",
         "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787397249943_vu5ao5.png",
-        "ratio": 1,
+        "ratio": 1.4144,
         "caption": "",
         "wide": false,
         "hidden": false
@@ -1416,7 +1416,7 @@
         "type": "remote",
         "category": "design",
         "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787397245692_sb3jxs.png",
-        "ratio": 1,
+        "ratio": 1.4144,
         "caption": "",
         "wide": false,
         "hidden": false
@@ -1425,7 +1425,7 @@
         "type": "remote",
         "category": "design",
         "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787397241496_hg10bk.png",
-        "ratio": 1,
+        "ratio": 0.7115,
         "caption": "",
         "wide": false,
         "hidden": false
@@ -1434,7 +1434,7 @@
         "type": "remote",
         "category": "design",
         "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787397237625_nyurup.png",
-        "ratio": 1,
+        "ratio": 0.7115,
         "caption": "",
         "wide": false,
         "hidden": false
@@ -1443,19 +1443,19 @@
         "type": "remote",
         "category": "design",
         "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787550981346_d6mn0o.webp",
-        "ratio": 0.1198,
+        "ratio": 0.12,
         "caption": "",
         "wide": false,
-        "hidden": true
+        "hidden": false
       },
       {
         "type": "remote",
         "category": "design",
         "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787550984872_6haybt.webp",
-        "ratio": 0.1504,
+        "ratio": 0.1506,
         "caption": "",
         "wide": false,
-        "hidden": true
+        "hidden": false
       },
       {
         "type": "remote",
@@ -1464,7 +1464,43 @@
         "ratio": 0.1875,
         "caption": "",
         "wide": false,
-        "hidden": true
+        "hidden": false
+      },
+      {
+        "type": "remote",
+        "category": "design",
+        "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787397965983_isfsqm.png",
+        "ratio": 1.7778,
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "remote",
+        "category": "design",
+        "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787397969730_0yn5ix.png",
+        "ratio": 1.7778,
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "remote",
+        "category": "design",
+        "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787397972044_lx1i1r.png",
+        "ratio": 1.7778,
+        "caption": "",
+        "wide": false,
+        "hidden": false
+      },
+      {
+        "type": "remote",
+        "category": "design",
+        "url": "https://raw.githubusercontent.com/Mango-pomelo-sago/myweb/main/public/images/1787397975662_58lzqg.png",
+        "ratio": 1.7778,
+        "caption": "",
+        "wide": false,
+        "hidden": false
       }
     ]
   },
